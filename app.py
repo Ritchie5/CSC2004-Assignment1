@@ -12,7 +12,7 @@ app.config.update(
     # Flask-Dropzone config:
     DROPZONE_MAX_FILE_SIZE=1024,  # set max size limit to a large number, here is 1024 MB
     DROPZONE_TIMEOUT=5 * 60 * 1000  # set upload timeout to a large number, here is 5 minutes
-)yvc
+)
 
 dropzone = Dropzone(app)
 
@@ -25,9 +25,14 @@ app.config['DROPZONE_DEFAULT_MESSAGE'] = "Drop files here to upload or Click to 
 @app.route('/', methods=['POST', 'GET'])
 def upload():
     if request.method == 'POST':
-        f = request.files.get('file')
-        f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
-        return render_template('output.html')
+        if request.files.get('file'):
+            f = request.files.get('file')
+            f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
+            print("something")
+        if request.form.get('username'):
+            print(request.form.get('username'))
+            return render_template('output.html')
+
     return render_template('index.html')
 
 
