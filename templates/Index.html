@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,7 +13,7 @@
   {{ dropzone.style('border: 2px Solid Grey; margin: auto; min-height: 400px; width: 50vw; border-radius: 25px; background-color: lightgray;') }}
 </head>
 <body>
-	<div class="d-flex justify-content-center">	
+	<div class="d-flex justify-content-center">
     <h1>CSC2004 LSB Stegnography</h1>
   </div>
 
@@ -21,9 +22,19 @@
   {{ dropzone.config() }}
 
 <div class="form">
-<form method="POST" action="/">
-    <input type="submit" value="Go">
-</form>
+    <form action="" method="post">
+        <p>
+            <label for="username">Username</label>
+            <input type="text" name="username">
+        </p>
+        <p>
+            <label for="password">Password</label>
+            <input type="password" name="password">
+        </p>
+        <p>
+            <input type="submit">
+        </p>
+    </form>
 </div>
 
 </body>
