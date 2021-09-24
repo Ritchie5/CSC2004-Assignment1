@@ -27,7 +27,8 @@ def upload():
     if request.method == 'POST':
         f = request.files.get('file')
         f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
-        render_template('output.html')
+        text = request.form['text']
+        return render_template('output.html')
     return render_template('index.html')
 
 

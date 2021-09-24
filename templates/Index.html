@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +10,7 @@
   <link rel="stylesheet" href="mystyle.css">
 
   {{ dropzone.load_css() }}
-  {{ dropzone.style('border: 2px Solid Grey; margin: 10%; min-height: 400px; min-width: 50vw; border-radius: 25px; background-color: lightgray;') }}
+  {{ dropzone.style('border: 2px Solid Grey; margin: auto; min-height: 400px; width: 50vw; border-radius: 25px; background-color: lightgray;') }}
 </head>
 <body>
 	<div class="d-flex justify-content-center">	
@@ -19,5 +20,18 @@
   {{ dropzone.create(action='upload') }}
   {{ dropzone.load_js() }}
   {{ dropzone.config() }}
+
+<div class="form">
+  <form class="d-flex justify-content-center" method="POST">
+    <div>
+      <label for="fname">First name:</label>
+      <input type="text" id="fname" name="fname"><br>
+      <label for="lname">Last name:</label>
+      <input type="text" id="lname" name="lname"><br>
+      <input type="submit" value="Submit">
+    </div>
+  </form>
+</div>
+
 </body>
 </html>
