@@ -2,16 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Stegnography Demo</title>
-  <h2>Select an Option</h2>
+  <title>Steganography Demo</title>
+  <h2>Select an Option:
     <a href="picture"><button>Picture</button></a>
     <a href="video"><button>Video</button></a>
     <a href="audio"><button>Audio</button></a>
+  </h2>
     <p></p>
     <p></p>
  
   {{ dropzone.load_css() }}
-  {{ dropzone.style('border: 2px Solid Grey; margin: left; min-height: 580px; width: 48vw; border-radius: 25px; background-color: lightgray;') }}
+  {{ dropzone.style('border: 2px Solid Grey; margin: left; min-height: 600px; width: 48vw; border-radius: 25px; background-color: lightgray;') }}
 </head>
 <body>
   {{ dropzone.create(action='picture') }}
