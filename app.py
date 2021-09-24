@@ -16,13 +16,18 @@ app.config.update(
 
 dropzone = Dropzone(app)
 
+app.config['DROPZONE_MAX_FILES'] = 1        # Set Max amount of file user can input to 1
+app.config['DROPZONE_MAX_FILE_SIZE'] = 1    # Set Max allowed file size to 1mb
+app.config['DROPZONE_DEFAULT_MESSAGE'] = "Drop files here to upload or Click to select file to upload"
+# Set default message in box
+
 
 @app.route('/', methods=['POST', 'GET'])
 def upload():
     if request.method == 'POST':
         f = request.files.get('file')
         f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
-        render_template('comparison.html')
+        render_template('output.html')
     return render_template('index.html')
 
 

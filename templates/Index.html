@@ -3,12 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <title>Flask-File Drag Drop System</title>
+
+  <!-- CSS only -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+  <link rel="stylesheet" href="mystyle.css">
+
   {{ dropzone.load_css() }}
-  {{ dropzone.style('border: 2px dashed #0087F7; margin: 10%; min-height: 400px;') }}
+  {{ dropzone.style('border: 2px Solid Grey; margin: 10%; min-height: 400px; min-width: 50vw; border-radius: 25px; background-color: lightgray;') }}
 </head>
 <body>
-	<div style="color:blue;text-align:center;border: 4px solid #0087F7">
-	File drag & Drop System with flask dropzone </div>
+	<div class="d-flex justify-content-center">	
+    <h1>CSC2004 LSB Stegnography</h1>
+  </div>
 
   {{ dropzone.create(action='upload') }}
   {{ dropzone.load_js() }}
