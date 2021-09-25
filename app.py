@@ -5,6 +5,8 @@ from flask_dropzone import Dropzone     # import flask dropzone
 
 basedir = os.path.abspath(os.path.dirname(__file__))    # specify filepath
 
+file_extension = ""
+
 app = Flask(__name__)   # create an instance and initialise the flask
 
 # configure the setting of the uploaded item
@@ -27,29 +29,41 @@ app.config['DROPZONE_DEFAULT_MESSAGE'] = "Drop file here to upload or Click to s
 def home():
     return render_template('home.html')     # indicate which html file to render
 
-@app.route('/picture', methods=['POST', 'GET']) # direct Flask to another URL, setting flask to be able to get and post
-def picture():
-    if request.method == 'POST':
-        f = request.files.get('file')
-        f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
-        return render_template('output.html')
-    return render_template('picture.html')    # indicate which html file to render
 
-@app.route('/video', methods=['POST', 'GET'])
-def video():
+@app.route('/', methods=['POST', 'GET'])
+def upload():
+    global file_extension
     if request.method == 'POST':
-        f = request.files.get('file')
-        f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
-        return render_template('output.html')
-    return render_template('video.html')    # indicate which html file to render
+        if request.files.get('file'):
+            f = request.files.get('file')
+            f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
+            file_extension = f.filename.split('.')[1]
+            print(file_extension)
+        if request.form.get('payload'):
+            payload = request.form.get('payload')
+            LSB = request.form.get('LSB')
+            print(file_extension)
+            ext = detect_file_type(file_extension)
+            if ext == 'img':
+                return render_template('picture.html')
+            elif ext == 'audio':
+                return render_template('audio.html')
+            elif ext == 'video':
+                return render_template('video.html')
+        return render_template('home.html')
 
-@app.route('/audio', methods=['POST', 'GET'])
-def audio():
-    if request.method == 'POST':
-        f = request.files.get('file')
-        f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
-        return render_template('output.html')
-    return render_template('audio.html')    # indicate which html file to render
+
+def detect_file_type(ext):
+    img_type = ["jpeg", "jpg", "png", "bmp"]
+    document = ["word", "txt", "xls"]
+    audio_video = ["mp3", "mp4", "wav"]
+    if ext.lower() in img_type:
+        return 'img'
+    elif ext.lower() in document:
+        return 'audio'
+    elif ext.lower() in audio_video:
+        return 'video'
+
 
 def lsb_type(file, number_of_lsb):
     # Figure out the type of file for us to upload
