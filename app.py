@@ -8,7 +8,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))    # specify filepath
 file_extension = ""
 
 app = Flask(__name__)   # create an instance and initialise the flask
-app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+app.secret_key = "Charmander"
 
 # configure the setting of the uploaded item
 app.config.update(  
@@ -50,7 +50,6 @@ def upload():
 
                 if ext == "":
                     flash('Please input a file')
-                    return render_template('home.html')
                 if ext == 'img':
                     return render_template('picture.html')
                 elif ext == 'audio':
@@ -58,6 +57,8 @@ def upload():
                 elif ext == 'video':
                     return render_template('video.html')
 
+            else:
+                flash("Please input everything in the form")
 
         return render_template('home.html')
 
