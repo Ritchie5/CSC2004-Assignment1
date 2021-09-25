@@ -63,6 +63,8 @@ def upload():
                 if option == "Encode":
                     # CHECK THE FILE EXTENSION AND EXECUTE ACCORDINGLY
 
+                    if ext == 'text':
+                        pass
                     if ext == 'img':
                         # file = logic(file_name)
                         # f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
@@ -110,13 +112,16 @@ def display_audio(filename):
 def detect_file_type(ext):
     img_type = ["jpeg", "jpg", "png", "bmp"]
     document = ["word", "txt", "xls"]
-    audio_video = ["mp3", "mp4", "wav"]
+    audio = ["mp3", "wav"]
+    video = ["mp4"]
     ext = ext.lower()
     if ext in img_type:
         return 'img'
     elif ext in document:
+        return 'text'
+    elif ext in video:
         return 'audio'
-    elif ext in audio_video:
+    elif ext in video:
         return 'video'
     else:
         return ""
@@ -126,6 +131,10 @@ def logic(file, number_of_lsb):
     # Figure out the type of file for us to upload
     # For The Logic team to fill out
     return None
+
+
+def read_text_file():
+    pass
 
 
 if __name__ == '__main__':
