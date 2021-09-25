@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,6 +11,8 @@
   {{ dropzone.load_css() }}
   {{ dropzone.style('border: 2px Solid Grey; margin: auto; min-height: 400px; width: 50vw; border-radius: 25px; background-color: lightgray;') }}
 </head>
+
+<body>
     {% block content %}
         {% with messages = get_flashed_messages() %}
             {% if messages %}
@@ -22,13 +23,16 @@
                 {% endfor %}
             {% endif %}
         {% endwith %}
-    {% endblock %}
-      
+    {% endblock %}      
 
-<body>
-	<div class="d-flex justify-content-center">
-    <h1>CSC2004 LSB Stenography</h1>
+	<div class="d-flex justify-content-center" style="margin-top: 10vh;">
+      <h1><u>CSC2004 LSB Stenography</u></h1>
   </div>
+
+  <div class="d-flex justify-content-center" style="margin-top: auto;">
+      <h3>Input type: Text, Image, Audio, Video</h3>
+  </div>
+
 
   {{ dropzone.create(action='upload') }}
   {{ dropzone.load_js() }}
@@ -46,8 +50,8 @@
         </p>
         <p>
           <label for="Encode"><b>Please choose if you want to encode or decode</b></label><br>
-          <input type="radio" name="option" value="Encode" checked>Encode
-          <input type="radio" name="option" value="Decode">Decode<br>
+          <input type="radio" name="option" value="Encode" checked> Encode 
+          <input type="radio" name="option" value="Decode"> Decode<br>
         </p>
         <p>
             <input type="submit">
