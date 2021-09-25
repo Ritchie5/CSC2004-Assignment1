@@ -69,9 +69,9 @@ def upload():
                         cover_img = ""
                         return render_template('picture.html', filename=file_name, filename1=file_name)
                     elif ext == 'audio':
-                        return render_template('audio.html')
+                        return render_template('audio.html', filename=file_name, filename1=file_name)
                     elif ext == 'video':
-                        return render_template('video.html')
+                        return render_template('video.html', filename=file_name, filename1=file_name)
 
                 # DECODING
                 if option == "Decode":
@@ -79,9 +79,9 @@ def upload():
                         cover_img = ""
                         return render_template('picture.html', filename=file_name, filename1=file_name)
                     elif ext == 'audio':
-                        return render_template('audio.html')
+                        return render_template('audio.html', filename=file_name, filename1=file_name)
                     elif ext == 'video':
-                        return render_template('video.html')
+                        return render_template('video.html', filename=file_name, filename1=file_name)
 
             else:
                 flash("Please input everything in the form")
@@ -92,6 +92,18 @@ def upload():
 @app.route('/display/<filename>')
 def display_image(filename):
     # print('display_image filename: ' + filename)
+    return redirect(url_for('static', filename='uploads/' + filename), code=301)
+
+
+@app.route('/display/<filename>')
+def display_video(filename):
+    # print('display_video filename: ' + filename)
+    return redirect(url_for('static', filename='uploads/' + filename), code=301)
+
+
+@app.route('/display/<filename>')
+def display_audio(filename):
+    # print('display_video filename: ' + filename)
     return redirect(url_for('static', filename='uploads/' + filename), code=301)
 
 
