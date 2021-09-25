@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, render_template, request   # import flask class and relevant libraries
+from flask import Flask, flash, render_template, request   # import flask class and relevant libraries
 from flask_dropzone import Dropzone     # import flask dropzone
 
 basedir = os.path.abspath(os.path.dirname(__file__))    # specify filepath
@@ -8,6 +8,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))    # specify filepath
 file_extension = ""
 
 app = Flask(__name__)   # create an instance and initialise the flask
+app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
 # configure the setting of the uploaded item
 app.config.update(  
@@ -34,22 +35,30 @@ def home():
 def upload():
     global file_extension
     if request.method == 'POST':
+
         if request.files.get('file'):
             f = request.files.get('file')
             f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
             file_extension = f.filename.split('.')[1]
-            print(file_extension)
+
         if request.form.get('payload'):
-            payload = request.form.get('payload')
-            LSB = request.form.get('LSB')
-            print(file_extension)
-            ext = detect_file_type(file_extension)
-            if ext == 'img':
-                return render_template('picture.html')
-            elif ext == 'audio':
-                return render_template('audio.html')
-            elif ext == 'video':
-                return render_template('video.html')
+            if request.form.get('LSB'):
+                payload = request.form.get('payload')
+                LSB = request.form.get('LSB')
+                option = request.form.getlist('option')[0]
+                ext = detect_file_type(file_extension)
+
+                if ext == "":
+                    flash('Please input a file')
+                    return render_template('home.html')
+                if ext == 'img':
+                    return render_template('picture.html')
+                elif ext == 'audio':
+                    return render_template('audio.html')
+                elif ext == 'video':
+                    return render_template('video.html')
+
+
         return render_template('home.html')
 
 
@@ -63,9 +72,11 @@ def detect_file_type(ext):
         return 'audio'
     elif ext.lower() in audio_video:
         return 'video'
+    else:
+        return ""
 
 
-def lsb_type(file, number_of_lsb):
+def logic(file, number_of_lsb):
     # Figure out the type of file for us to upload
     # For The Logic team to fill out
     pass
