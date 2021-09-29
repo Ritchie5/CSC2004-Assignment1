@@ -14,7 +14,7 @@ def ConvertToBin(input):  # convert data to binary function
         return format(input, '08b')
     else:
         raise TypeError(
-            "Input type not supported, please enter in String, Bytes or Integer format")
+            "Input type not supported, please provide data in String, Bytes or Integer format")
 
 
 def Encode(imgname, payload):
@@ -24,15 +24,15 @@ def Encode(imgname, payload):
           str(img.shape[1]) + " pixels")  # image size(pixels)
     maxpayload = img.shape[0]*img.shape[1]*3//8
     print("Maximum payload to encode: " + str(maxpayload)+" bytes")
-    print(len(payload))
+    # print(len(payload))
     payload += '#####'
     binaryPayload = ConvertToBin(payload)
-    print(binaryPayload)
+    # print(binaryPayload)
     if len(payload) > maxpayload:
         print("Length of payload is to big for image of this size, please use a larger image or reduce the payload")
     index = 0
     binaryPayloadLength = len(binaryPayload)
-    print(binaryPayloadLength)
+    # print(binaryPayloadLength)
     imgEncode = img
     # LSB Encoding
     for values in imgEncode:
@@ -55,7 +55,6 @@ def Encode(imgname, payload):
                 # print((pixel[2]))
             if index >= binaryPayloadLength:
                 break
-
     cv2.imwrite('Encoded Image.png', imgEncode)
     return imgEncode
 
@@ -86,18 +85,29 @@ def Decode(imgname):
 def main():
     print("This program is using OpenCV " + cv2. __version__)
     print("NOTE: LSB only works on lossless-compression images like PNG, TIFF, and BMP")
+    print("Main menu:\n1)Encode\n2)Decode")
+    option = int(input("Enter in option\n"))
+    #print(option)
+    if option == 1:
+        print("Payload Type to encode\n1)Text\n2)Image")
+        payloadType = int(input("Enter Payload Type (1-?):"))
+        if payloadType == 1:
+            imgname = input("Enter image name\n")
+            payload = input("Enter secret message\n")
+            Encode(imgname,payload)
+        
+    elif option ==2:
+        imgname = input("Enter image name\n")
+        Decode(imgname)
 
-    img = 'Lenna.png'
-    ogimg = cv2.imread('Lenna.png')
-    #payload = "Steganography is the practice of hiding a secret message inside of (or even on top of) something that is not secret. That something can be just about anything you want. These days, many examples of steganography involve embedding a secret piece of text inside of a picture. Or hiding a secret message or script inside of a Word or Excel document.  The purpose of steganography is to conceal and deceive. It is a form of covert communication and can involve the use of any medium to hide messages. It’s not a form of cryptography, because it doesn’t involve scrambling data or using a key. Instead, it is a form of data hiding and can be executed in clever ways. Where cryptography is a science that largely enables privacy, steganography is a practice that enables secrecy – and deceit."
-    payload = "MY MILKSHAKE BRINGS ALL THE BOYS TO THE YARD"
-    imgEncode=Encode(img, payload)
-    Decode('Encoded Image.png')
+    #Display does not with when code above is written for some reason, but code is working fine...
     # show resulting image for comparison
-    cv2.imshow('Original Image', ogimg)
-    cv2.imshow('Encoded Image', imgEncode)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    #help = cv2.imread("Lenna.png")
+    #cv2.imshow('Original Image', help)
+    #cv2.imshow('Encoded Image', "Encoded Image.png")
+    #cv2.waitKey(0)
+    #cv2.destroyAllWindows()
+    
 
 
 if __name__ == "__main__":
