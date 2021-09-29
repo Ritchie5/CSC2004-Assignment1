@@ -58,6 +58,66 @@ def Encode(imgname, payload):
     cv2.imwrite('Encoded Image.png', imgEncode)
     return imgEncode
 
+def DynamicEncode(imgname,payload,bitPos):
+    print(bitPos)
+    img = cv2.imread(imgname)
+    print("Image size: " + str(img.shape[0]) + " by " +
+          str(img.shape[1]) + " pixels")  # image size(pixels)
+    maxpayload = img.shape[0]*img.shape[1]*3//8
+    print("Maximum payload to encode: " + str(maxpayload)+" bytes")
+    # print(len(payload))
+    payload += '#####'
+    binaryPayload = ConvertToBin(payload)
+    # print(binaryPayload)
+    if len(payload) > maxpayload:
+        print("Length of payload is to big for image of this size, please use a larger image or reduce the payload")
+    index = 0
+    binaryPayloadLength = len(binaryPayload)
+    # print(binaryPayloadLength)
+    imgEncode = img
+    # LSB Encoding
+    for values in imgEncode:
+        for pixel in values:
+            b, g, r = ConvertToBin(pixel)
+            listB=list(b)
+            listG=list(g)
+            listR=list(r)
+            for i in range(len(bitPos)):
+                if index < binaryPayloadLength:
+                    #print(index)
+                    print("Replacing pixel["+str(bitPos[i])+"] in B with "+ binaryPayload[index])
+                    print("".join(listB))
+                    listB[bitPos[i]]=binaryPayload[index]
+                    print("".join(listB))
+                    pixel[0] = int("".join(listB), 2)
+                    index += 1
+                else:
+                   break
+            for i in range(len(bitPos)):
+                if index < binaryPayloadLength:
+                    #print(index)
+                    print("Replacing pixel["+str(bitPos[i])+"] in G with "+ binaryPayload[index])
+                    print("".join(listG))
+                    listG[bitPos[i]]=binaryPayload[index]
+                    print("".join(listG))
+                    pixel[1] = int("".join(listG), 2)
+                    index += 1
+                else:
+                    break
+            for i in range(len(bitPos)):
+                if index < binaryPayloadLength:
+                    #print(index)
+                    print("Replacing pixel["+str(bitPos[i])+"] in R with "+ binaryPayload[index])
+                    print("".join(listR))
+                    listR[bitPos[i]]=binaryPayload[index]
+                    print("".join(listR))
+                    pixel[2] = int("".join(listR), 2)
+                    index += 1
+                else:
+                    break
+    cv2.imwrite('Encoded Image.png', imgEncode)
+    return imgEncode
+
 
 def Decode(imgname):
     img = cv2.imread(imgname)
@@ -65,9 +125,9 @@ def Decode(imgname):
     for x in img:
         for pixel in x:
             b, g, r = ConvertToBin(pixel)
-            binaryPayload += b[-1]
-            binaryPayload += g[-1]
-            binaryPayload += r[-1]
+            binaryPayload += b[:3]
+            binaryPayload += g[:3]
+            binaryPayload += r[:3]
 
     binaryPayloadFormat = [binaryPayload[i:i+8]
                            for i in range(0, len(binaryPayload), 8)]
@@ -87,27 +147,34 @@ def main():
     print("NOTE: LSB only works on lossless-compression images like PNG, TIFF, and BMP")
     print("Main menu:\n1)Encode\n2)Decode")
     option = int(input("Enter in option\n"))
-    #print(option)
+    # print(option)
     if option == 1:
         print("Payload Type to encode\n1)Text\n2)Image")
         payloadType = int(input("Enter Payload Type (1-?):"))
         if payloadType == 1:
             imgname = input("Enter image name\n")
             payload = input("Enter secret message\n")
-            Encode(imgname,payload)
-        
-    elif option ==2:
+            bits = int(input("Bits to replace?\n"))
+            bitPos=[]
+            for i in range(bits):
+                bitPosInput = int(input("Enter bit position to replace(0-7):\n"))
+                bitPos.append(bitPosInput)
+            bitPos.sort()
+            #print(bitPos)
+            #Encode(imgname, payload)
+            DynamicEncode(imgname,payload,bitPos)
+
+    elif option == 2:
         imgname = input("Enter image name\n")
         Decode(imgname)
 
-    #Display does not with when code above is written for some reason, but code is working fine...
+    # Display does not with when code above is written for some reason, but code is working fine...
     # show resulting image for comparison
     #help = cv2.imread("Lenna.png")
     #cv2.imshow('Original Image', help)
     #cv2.imshow('Encoded Image', "Encoded Image.png")
-    #cv2.waitKey(0)
-    #cv2.destroyAllWindows()
-    
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
