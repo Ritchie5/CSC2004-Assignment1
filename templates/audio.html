@@ -4,6 +4,10 @@
   <title>Steganography Demo</title>
 </head>
 <body>
+  <div class="topnav">
+    <a class="active" href="{{ url_for('encode') }}">Encode</a>
+    <a href="{{ url_for('decode') }}">Decode</a>
+  </div>  
   <h2>Original audio</h2>
   <audio controls>
   <source src={{source}} type="audio/mpeg">

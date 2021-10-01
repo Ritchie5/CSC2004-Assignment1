@@ -11,10 +11,15 @@
       integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename = 'css/styles.css') }}">
   </head>
 
   <body>
+    <div class="topnav">
+    <a class="active" href="{{ url_for('encode') }}">Encode</a>
+    <a href="{{ url_for('decode') }}">Decode</a>
+    </div>
+
     <div>
       <h2>Original Img</h2>
       {% if filename %}

@@ -25,20 +25,89 @@ dropzone = Dropzone(app)
 app.config['DROPZONE_MAX_FILES'] = 1  # Set Max amount of file user can input to 1
 app.config['DROPZONE_MAX_FILE_SIZE'] = 2  # Set Max allowed file size to 2mb
 app.config['DROPZONE_DEFAULT_MESSAGE'] = "Drop file here to upload or Click to select file to upload"
-
-
 # Set default message in box
 
 
 @app.route('/')  # provide Flask an URL on which function to be triggered (root)
 def home():
-    return render_template('home.html')  # indicate which html file to render
+    return render_template('encode.html')  # indicate which html file to render
 
 
-@app.route('/', methods=['POST', 'GET'])
-def upload():
+@app.route('/encode', methods=['POST', 'GET'])
+def encode():
     global file_extension
     global file_name
+    if request.method == 'POST':
+
+        if request.form['LSB']:
+            LSB = request.form['LSB']
+            print(LSB)
+            # Check File Extension & if there's a file
+            ext = detect_file_type(file_extension)
+            if ext == "":
+                flash('Please input a file')
+
+            # CHECK THE FILE EXTENSION AND EXECUTE ACCORDINGLY
+
+            if ext == 'text':
+                pass
+            if ext == 'img':
+                # file = logic(file_name)
+                # f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
+                cover_img = ""
+                return render_template('picture.html', filename=file_name, filename1=file_name)
+            elif ext == 'audio':
+                return render_template('audio.html', filename=file_name, filename1=file_name)
+            elif ext == 'video':
+                return render_template('video.html', filename=file_name, filename1=file_name)
+
+        else:
+            flash("Please input everything in the form")
+
+    return render_template('encode.html')
+
+
+@app.route('/decode', methods=['POST', 'GET'])
+def decode():
+    global file_extension
+    global file_name
+    if request.method == 'POST':
+
+        if request.form['LSB']:
+            if request.form.get('Filetype'):
+                LSB = request.form['LSB']
+                Filetype = request.form.get('Filetype')
+                print(Filetype, LSB)
+                # Check File Extension & if there's a file
+                ext = detect_file_type(file_extension)
+                if ext == "":
+                    flash('Please input a file')
+
+                # CHECK THE FILE EXTENSION AND EXECUTE ACCORDINGLY
+
+                if ext == 'text':
+                    pass
+                if ext == 'img':
+                    # file = logic(file_name)
+                    # f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
+                    cover_img = ""
+                    return render_template('picture.html', filename=file_name, filename1=file_name)
+                elif ext == 'audio':
+                    return render_template('audio.html', filename=file_name, filename1=file_name)
+                elif ext == 'video':
+                    return render_template('video.html', filename=file_name, filename1=file_name)
+
+            else:
+                flash("Please input everything in the form")
+
+    return render_template('decode.html')
+
+
+@app.route('/first_upload', methods=['Post'])
+def first_upload():
+    global file_extension
+    global file_name
+
     if request.method == 'POST':
 
         # CHECK IF THE FILE AND FORM IS SUBMITTED
@@ -47,48 +116,25 @@ def upload():
             f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
             file_extension = f.filename.split('.')[1]
             file_name = f.filename
+            print(file_name)
+        return file_name
 
-        if request.form.get('payload'):
-            if request.form.get('LSB'):
-                payload = request.form.get('payload')
-                LSB = request.form.get('LSB')
-                option = request.form.getlist('option')[0]
 
-                # Check File Extension & if there's a file
-                ext = detect_file_type(file_extension)
-                if ext == "":
-                    flash('Please input a file')
+@app.route('/second_upload', methods=['Post'])
+def second_upload():
+    global file_extension
+    global file_name
 
-                # ENCODING
-                if option == "Encode":
-                    # CHECK THE FILE EXTENSION AND EXECUTE ACCORDINGLY
+    if request.method == 'POST':
 
-                    if ext == 'text':
-                        pass
-                    if ext == 'img':
-                        # file = logic(file_name)
-                        # f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
-                        cover_img = ""
-                        return render_template('picture.html', filename=file_name, filename1=file_name)
-                    elif ext == 'audio':
-                        return render_template('audio.html', filename=file_name, filename1=file_name)
-                    elif ext == 'video':
-                        return render_template('video.html', filename=file_name, filename1=file_name)
-
-                # DECODING
-                if option == "Decode":
-                    if ext == 'img':
-                        cover_img = ""
-                        return render_template('picture.html', filename=file_name, filename1=file_name)
-                    elif ext == 'audio':
-                        return render_template('audio.html', filename=file_name, filename1=file_name)
-                    elif ext == 'video':
-                        return render_template('video.html', filename=file_name, filename1=file_name)
-
-            else:
-                flash("Please input everything in the form")
-
-        return render_template('home.html')
+        # CHECK IF THE FILE AND FORM IS SUBMITTED
+        if request.files.get('file'):
+            f = request.files.get('file')
+            f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
+            file_extension = f.filename.split('.')[1]
+            file_name = f.filename
+            print(file_name)
+        return file_name
 
 
 @app.route('/display/<filename>')
