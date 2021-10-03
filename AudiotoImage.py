@@ -10,7 +10,7 @@ def audio_to_text(audioFile):
         audio_data = r.record(source)
         # recognize (convert from speech to text)
         text = r.recognize_google(audio_data)
-        print(len(text))
+        # print(len(text))
     return text
 
 # Function to convert text to binary
