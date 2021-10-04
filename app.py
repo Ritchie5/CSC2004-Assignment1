@@ -1,4 +1,5 @@
 import os
+import shutil
 
 from flask import Flask, flash, render_template, request, url_for  # import flask class and relevant libraries
 from flask_dropzone import Dropzone  # import flask dropzone
@@ -25,6 +26,8 @@ dropzone = Dropzone(app)
 app.config['DROPZONE_MAX_FILES'] = 1  # Set Max amount of file user can input to 1
 app.config['DROPZONE_MAX_FILE_SIZE'] = 2  # Set Max allowed file size to 2mb
 app.config['DROPZONE_DEFAULT_MESSAGE'] = "Drop file here to upload or Click to select file to upload"
+
+
 # Set default message in box
 
 
@@ -39,7 +42,7 @@ def encode():
     global file_name
     if request.method == 'POST':
 
-        if request.form['LSB']:
+        try:
             LSB = request.form['LSB']
             print(LSB)
             # Check File Extension & if there's a file
@@ -47,7 +50,7 @@ def encode():
             if ext == "":
                 flash('Please input a file')
 
-            # CHECK THE FILE EXTENSION AND EXECUTE ACCORDINGLY
+                # CHECK THE FILE EXTENSION AND EXECUTE ACCORDINGLY
 
             if ext == 'text':
                 pass
@@ -61,7 +64,7 @@ def encode():
             elif ext == 'video':
                 return render_template('video.html', filename=file_name, filename1=file_name)
 
-        else:
+        except:
             flash("Please input everything in the form")
 
     return render_template('encode.html')
@@ -113,6 +116,8 @@ def first_upload():
         # CHECK IF THE FILE AND FORM IS SUBMITTED
         if request.files.get('file'):
             f = request.files.get('file')
+
+            print(os.path.join(app.config['UPLOADED_PATH']))
             f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
             file_extension = f.filename.split('.')[1]
             file_name = f.filename
