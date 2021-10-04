@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename = 'css/styles.css') }}">
 
   {{ dropzone.load_css() }}
-  {{ dropzone.style('border: 2px Solid Grey; margin: auto; height: 40vh ; width: 60vw; border-radius: 25px; background-color: lightgray;') }}
+  {{ dropzone.style('border: 2px Solid Grey; margin: auto; height: 40vh ; width: 60vh; border-radius: 25px; background-color: lightgray;') }}
 </head>
 
 <body>
@@ -34,7 +34,7 @@
         {% endwith %}
     {% endblock %}     
 
-  <div class="d-flex justify-content-center" style="margin-bottom: -1vh;">
+  <div class="d-flex justify-content-center" style="margin-top: 2vh; margin-bottom: -1vh;">
       <h2><b>Cover Object</b></h2>
   </div>
 
@@ -46,7 +46,7 @@
   {{ dropzone.load_js() }}
   {{ dropzone.config() }}
 
-  <div class="d-flex justify-content-center" style="margin-top: 2vh; margin-left: 15vw;">
+  <div class="d-flex justify-content-center" style="margin-top: 2vh;">
       <form action="/encode" method="post">
             <h2>Bit to replace:</h2>
             <p>

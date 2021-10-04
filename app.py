@@ -41,16 +41,20 @@ def home():
 
 @app.route('/encode', methods=['POST', 'GET'])
 def encode():
-    global file_extension
-    global file_name
+    global File_Cover_Object
+    global Cover_Object_Extension
+    global File_Payload
+    global Payload_Extension
+
     if request.method == 'POST':
 
         try:
             LSB = request.form['LSB']
             print(LSB)
             # Check File Extension & if there's a file
-            ext = detect_file_type(file_extension)
-            if ext == "":
+            ext = detect_file_type(Cover_Object_Extension)
+            ext1 = detect_file_type(Payload_Extension)
+            if ext == "" or ext1 == "":
                 flash('Please input a file')
 
                 # CHECK THE FILE EXTENSION AND EXECUTE ACCORDINGLY
@@ -61,58 +65,58 @@ def encode():
                 # file = logic(file_name)
                 # f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
                 cover_img = ""
-                return render_template('picture.html', filename=file_name, filename1=file_name)
+                return render_template('picture.html', filename=File_Cover_Object, filename1=File_Cover_Object)
             elif ext == 'audio':
-                return render_template('audio.html', filename=file_name, filename1=file_name)
+                return render_template('audio.html', filename=File_Cover_Object, filename1=File_Cover_Object)
             elif ext == 'video':
-                return render_template('video.html', filename=file_name, filename1=file_name)
+                return render_template('video.html', filename=File_Cover_Object, filename1=File_Cover_Object)
 
         except:
             flash("Please input everything in the form")
 
-    return render_template('encode.html', charmander = Charmander)
+    return render_template('encode.html', charmander=Charmander)
 
 
 @app.route('/decode', methods=['POST', 'GET'])
 def decode():
-    global file_extension
-    global file_name
+    global File_Cover_Object
+    global Cover_Object_Extension
+
     if request.method == 'POST':
 
-        if request.form['LSB']:
-            if request.form.get('Filetype'):
-                LSB = request.form['LSB']
-                Filetype = request.form.get('Filetype')
-                print(Filetype, LSB)
-                # Check File Extension & if there's a file
-                ext = detect_file_type(file_extension)
-                if ext == "":
-                    flash('Please input a file')
+        try:
+            LSB = request.form['LSB']
+            print(LSB)
+            # Check File Extension & if there's a file
+            ext = detect_file_type(Cover_Object_Extension)
+            ext1 = detect_file_type(Payload_Extension)
+            if ext == "" or ext1 == "":
+                flash('Please input a file')
 
                 # CHECK THE FILE EXTENSION AND EXECUTE ACCORDINGLY
 
-                if ext == 'text':
-                    pass
-                if ext == 'img':
-                    # file = logic(file_name)
-                    # f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
-                    cover_img = ""
-                    return render_template('picture.html', filename=file_name, filename1=file_name)
-                elif ext == 'audio':
-                    return render_template('audio.html', filename=file_name, filename1=file_name)
-                elif ext == 'video':
-                    return render_template('video.html', filename=file_name, filename1=file_name)
+            if ext == 'text':
+                pass
+            if ext == 'img':
+                # file = logic(file_name)
+                # f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
+                cover_img = ""
+                return render_template('picture.html', filename=File_Cover_Object, filename1=File_Cover_Object)
+            elif ext == 'audio':
+                return render_template('audio.html', filename=File_Cover_Object, filename1=File_Cover_Object)
+            elif ext == 'video':
+                return render_template('video.html', filename=File_Cover_Object, filename1=File_Cover_Object)
 
-            else:
-                flash("Please input everything in the form")
+        except:
+            flash("Please input everything in the form")
 
     return render_template('decode.html', charmander=Charmander)
 
 
 @app.route('/first_upload', methods=['Post'])
 def first_upload():
-    global file_extension
-    global file_name
+    global File_Cover_Object
+    global Cover_Object_Extension
 
     if request.method == 'POST':
 
@@ -122,16 +126,16 @@ def first_upload():
 
             print(os.path.join(app.config['UPLOADED_PATH']))
             f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
-            file_extension = f.filename.split('.')[1]
-            file_name = f.filename
-            print(file_name)
-        return file_name
+            Cover_Object_Extension = f.filename.split('.')[1]
+            File_Cover_Object = f.filename
+            print(File_Cover_Object)
+        return File_Cover_Object
 
 
 @app.route('/second_upload', methods=['Post'])
 def second_upload():
-    global file_extension
-    global file_name
+    global File_Payload
+    global Payload_Extension
 
     if request.method == 'POST':
 
@@ -139,10 +143,10 @@ def second_upload():
         if request.files.get('file'):
             f = request.files.get('file')
             f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
-            file_extension = f.filename.split('.')[1]
-            file_name = f.filename
-            print(file_name)
-        return file_name
+            Payload_Extension = f.filename.split('.')[1]
+            File_Payload = f.filename
+            print(File_Payload)
+        return File_Payload
 
 
 @app.route('/display/<filename>')
