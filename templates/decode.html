@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename = 'css/styles.css') }}">
 
   {{ dropzone.load_css() }}
-  {{ dropzone.style('border: 2px Solid Grey; margin: auto; min-height: 400px; width: 50vw; border-radius: 25px; background-color: lightgray;') }}
+  {{ dropzone.style('border: 2px Solid Grey; margin: auto; height: 40vh ; width: 60vw; border-radius: 25px; background-color: lightgray;') }}
 </head>
 
 <body>
@@ -18,57 +18,71 @@
     <a class="active" href="{{ url_for('decode') }}">Decode</a>
     </div>
 
-    {% block content %}
+	<div class="d-flex justify-content-center bg-secondary text-white text-center" style="height: 8vh;">
+      <h1 style="margin-top: 1.5vh"><b>CSC2004 LSB Stenography</b></h1>
+  </div>
+
+      {% block content %}
         {% with messages = get_flashed_messages() %}
             {% if messages %}
                 {% for msg in messages %}
                   <div class="d-flex justify-content-center">
-                    <h1 style="color: red">{{msg}}</h1>
+                    <h1 style="color: red">Error: {{msg}}</h1>
                   </div>    
                 {% endfor %}
             {% endif %}
         {% endwith %}
-    {% endblock %}      
+    {% endblock %}     
 
-	<div class="d-flex justify-content-center" style="margin-top: 10vh;">
-      <h1><u>CSC2004 LSB Stenography</u></h1>
+  <div class="d-flex justify-content-center" style="margin-bottom: -1vh;">
+      <h2><b>Cover Object</b></h2>
   </div>
 
-  <div class="d-flex justify-content-center" style="margin-top: auto;">
-      <h3>Input type: Text, Image, Audio, Video</h3>
+  <div class="d-flex justify-content-center" style="margin-bottom: -1vh;">
+      <p>Input type: Text, Image, Audio, Video</p>
   </div>
-
 
   {{ dropzone.create(action= url_for('first_upload'))}}
   {{ dropzone.load_js() }}
   {{ dropzone.config() }}
 
-<div class="d-flex justify-content-center" style="margin-top: 2vh;">
-    <form action="/decode" method="post">
-          <p>Number of LSB: 
-            <input type="radio" id="LSB1" name="LSB" value="1">
-            <label for="LSB1">1</label>
-            <input type="radio" id="LSB2" name="LSB" value="2">
-            <label for="LSB2">2</label>
-            <input type="radio" id="LSB3" name="LSB" value="3">
-            <label for="LSB3">3</label>
-            <input type="radio" id="LSB4" name="LSB" value="4">
-            <label for="LSB4">4</label>
-            <input type="radio" id="LSB5" name="LSB" value="5">
-            <label for="LSB5">5</label>
-            <input type="radio" id="LSB6" name="LSB" value="6">
-            <label for="LSB6">6</label>
-          </p>
+  <div class="d-flex justify-content-center" style="margin-top: 2vh; margin-left: 15vw;">
+      <form action="/encode" method="post">
+            <h2>Bit to replace:</h2>
             <p>
-            <label for="Filetype">File Type</label>
-            <input type="text" name="Filetype">
-            </p>    
-        <p>
-            <input type="submit">
-        </p>
+              <input type="checkbox" id="LSB0" name="LSB" value="0">
+              <label for="LSB1">0 &nbsp</label>
+              <input type="checkbox" id="LSB1" name="LSB" value="1">
+              <label for="LSB1">1 &nbsp</label>
+              <input type="checkbox" id="LSB2" name="LSB" value="2">
+              <label for="LSB2">2 &nbsp</label>
+              <input type="checkbox" id="LSB3" name="LSB" value="3">
+              <label for="LSB3">3 &nbsp</label><br>
+              <input type="checkbox" id="LSB4" name="LSB" value="4">
+              <label for="LSB4">4 &nbsp</label>
+              <input type="checkbox" id="LSB5" name="LSB" value="5">
+              <label for="LSB5">5 &nbsp</label>
+              <input type="checkbox" id="LSB6" name="LSB" value="6">
+              <label for="LSB6">6 &nbsp</label>
+              <input type="checkbox" id="LSB7" name="LSB" value="7">
+              <label for="LSB6">7 &nbsp</label>         
+            </p>
+              <h2>File Extension:</h2>
+              <p style="margin-top: -1vh;">Please provide the extension of the secret File</p>
+              <input style="margin-top: -1.5vh; margin-bottom: 2vh;" type="text" name="Filetype" placeholder="jpg">   
+              
+              <input type="submit">
 
-    </form>
-</div>
+      </form>
+  </div>
+
+  <div>
+    <img
+      class="rounded-circle"
+      src="{{ charmander }}"
+      style="margin-left: 88vw; margin-top: -15vh; width: auto; height: 10vh"
+      />
+  </div>
 
 </body>
 </html>

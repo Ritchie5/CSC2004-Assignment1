@@ -7,8 +7,11 @@ from werkzeug.utils import redirect
 
 basedir = os.path.abspath(os.path.dirname(__file__))  # specify filepath
 
-file_extension = ""
-file_name = ""
+File_Cover_Object = ""
+File_Payload = ""
+Cover_Object_Extension = ""
+Payload_Extension = ""
+Charmander = "static/uploads/charmander.png"
 
 app = Flask(__name__)  # create an instance and initialise the flask
 app.secret_key = "Charmander"
@@ -25,15 +28,15 @@ dropzone = Dropzone(app)
 
 app.config['DROPZONE_MAX_FILES'] = 1  # Set Max amount of file user can input to 1
 app.config['DROPZONE_MAX_FILE_SIZE'] = 2  # Set Max allowed file size to 2mb
-app.config['DROPZONE_DEFAULT_MESSAGE'] = "Drop file here to upload or Click to select file to upload"
+app.config['DROPZONE_DEFAULT_MESSAGE'] = "Drop / Click to Upload File"
 
 
 # Set default message in box
 
-
 @app.route('/')  # provide Flask an URL on which function to be triggered (root)
 def home():
-    return render_template('encode.html')  # indicate which html file to render
+    # indicate which html file to render
+    return render_template('encode.html', charmander=Charmander)
 
 
 @app.route('/encode', methods=['POST', 'GET'])
@@ -67,7 +70,7 @@ def encode():
         except:
             flash("Please input everything in the form")
 
-    return render_template('encode.html')
+    return render_template('encode.html', charmander = Charmander)
 
 
 @app.route('/decode', methods=['POST', 'GET'])
@@ -103,7 +106,7 @@ def decode():
             else:
                 flash("Please input everything in the form")
 
-    return render_template('decode.html')
+    return render_template('decode.html', charmander=Charmander)
 
 
 @app.route('/first_upload', methods=['Post'])
