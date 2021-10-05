@@ -1,3 +1,5 @@
+# This code allows to hide secret text in audio file using bits replacement.
+# The user is allow to choose any bits he want to hide (eg hide in LSB choose 7, msb choose 0 and so on)
 import wave #to read wave audio file
 
 # Function to encode text in audio
@@ -39,7 +41,6 @@ def textEncode(payload, coverObj, bitPos):
     elif bitPos == 6:
         for i, bit in enumerate(bits):
             frame_bytes[i] = (frame_bytes[i] & 253) | (bit<<1)
-
     # LSB Algorithm
     # Replace LSB of each byte of audio from text
     elif bitPos == 7:
