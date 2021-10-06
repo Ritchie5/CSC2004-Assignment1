@@ -76,7 +76,7 @@ def textEncode(image, audio,bitPos):
             if data_index >= data_len:
                 break
 
-    return image
+    cv2.imwrite("Image\EncodedImagee.png", image)
 
 # Function to decode image to text
 def textDecode(image,bitPos):
@@ -101,8 +101,11 @@ def textDecode(image,bitPos):
         decoded_data += chr(int(byte, 2))
         if decoded_data[-5:] == "#####":  # check if we have reached the delimeter which is "#####"
             break
-    # print(decoded_data)
-    return decoded_data[:-5]  # remove the delimeter to show the original hidden message
+
+    text =  decoded_data[:-5]  # remove the delimeter to show the original hidden message
+    file = open(r"Text\secret_message.txt", "w")
+    file.write(text)
+    print(text)
 
 # Main
 choice = int(input("1.Encode\n2.Decode\nEnter your choice:"))
@@ -117,7 +120,7 @@ if choice == 1:
     bitPos.sort()
     image = cv2.imread(image)
     encoded_image = textEncode(image, audio, bitPos)
-    cv2.imwrite("Image\EncodedImage.png", encoded_image)
+
 elif choice == 2:
     image = input("Enter the path of image with embedded secret message:")
     print("Enter in key to decode\n")
@@ -129,9 +132,7 @@ elif choice == 2:
     bitPos.sort()
     image = cv2.imread(image)
     text = textDecode(image,bitPos)
-    file = open(r"Text\secret_message.txt", "w")
-    file.write(text)
-    print(text)
+
 
 else:
     print("Invalid code, please restart the program!")
