@@ -15,10 +15,10 @@ def textEncode(payload, coverObj, bitPos):
 
     # Append dummy data to fill up rest of the bytes
     payload += int((len(frame_bytes)-(len(payload)*8*8))/8) *'#'
-    print(payload)
+    #print(payload)
     # Convert text to bit array
     bits = list(map(int, ''.join([bin(ord(i)).lstrip('0b').rjust(8, '0') for i in payload])))
-    print(bits)
+    #print(bits)
     # Embed according to bits position
     if bitPos == 0:
         for i, bit in enumerate(bits):
@@ -51,12 +51,11 @@ def textEncode(payload, coverObj, bitPos):
     frame_modified = bytes(frame_bytes)
 
     # Write byte to new audio file
-    embedded_file = input("Enter the path you want to save the embedded audio: ")
-    with wave.open(embedded_file, 'wb') as fd:
+    with wave.open("Audio\EncodedAudio.wav", 'wb') as fd:
         fd.setparams(coverObj.getparams())
         fd.writeframes(frame_modified)
 
-    print("Done encoding! You may retrieve your encoded audio file in " + embedded_file)
+    print("Done encoding! You may retrieve your encoded audio file in Audio\EncodedAudio.wav")
 
 # Function to decode text from audio
 def textDecode(stegoObj, bitPos):
@@ -89,12 +88,16 @@ def textDecode(stegoObj, bitPos):
 
     # Retrieve secret message
     output = print("The secret message is: " + payload)
+    file =  open(r"Text\messageOutput.txt", "w")
+    file.write(payload)
     return output
 
 
 choice = int(input("1.Encode\n2.Decode\nEnter your choice:"))
 if choice == 1:
-    payload = input("Enter the secret message you want to hide:")
+    payload = input("Enter the path of the .txt you want to hide:")
+    payload = open(payload, "r")
+    payload = payload.read()
     coverObj = input("Enter the path to the audio file you want to hide the secret message:")
     bitPos = int(input("Enter the bit you want to encode (0-7 with 0 as the msb):"))
     textEncode(payload, coverObj, bitPos)
