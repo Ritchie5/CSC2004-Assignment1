@@ -23,7 +23,6 @@ def get_frames(coverobj):
 
 
 class LSB:
-
     # to get the object's size, data, file_format
     def get_object(self, file, itype):
         try:
@@ -61,7 +60,7 @@ class LSB:
 
 
 class Encode(LSB):
-    def __init__(self, payload, coverobj, bits, frame_start, frame_end):
+    def __init__(self, payload, coverobj, bits, frame_start, frame_end, frame_loc):
         print('[*] LSB Encoding with bits = {}'.format(bits))
         self.set_bits(bits) 
         self.start = frame_start
@@ -72,7 +71,8 @@ class Encode(LSB):
         self.coverobj = self.get_object(coverobj, 'coverobj') # coverobj details
         coverobj_data = self.payload[0]
         coverobj_size = self.coverobj[1]
-        self.steg(payload_data, payload_size, coverobj_data, coverobj_size, self.start, self.end)
+        self.frame_loc = frame_loc
+        self.steg(payload_data, payload_size, coverobj_data, coverobj_size, self.start, self.end, self.frame_loc)
     
     # data into base 64 into binary
     def to_base64(self):
@@ -92,8 +92,7 @@ class Encode(LSB):
         binary_coverobj = ''.join(self.to_binary(result_coverobj))
         return binary_payload, binary_coverobj
 
-    def steg(self, payload_data, payload_size, coverobj_data, coverobj_size, start, end):
-        
+    def steg(self, payload_data, payload_size, coverobj_data, coverobj_size, start, end, frame_loc):
         print("[*] Maximum bytes to encode: ", coverobj_size)
         if payload_size > coverobj_size:
             raise ValueError("[!] Insufficient bytes, need bigger image or less data.")
@@ -104,10 +103,11 @@ class Encode(LSB):
 
         toBeAmendedFrame = end - start + 1
         datapoints = math.ceil(len(payload_data) / toBeAmendedFrame) # Calculation of the Data distribution per Frame
+        print(datapoints)
         counter = start
         print("Performing Steganography...")        
         for num in range(0, len(payload_data), datapoints): # Partition of the payload data based on the datapoints 
-            selected_frames = "output\\" + str(counter) + ".png"    
+            selected_frames = frame_loc +"\\" + str(counter) + ".png"
             encodetext = payload_data[num:num+datapoints] # Copy the newly distributed data into a variable
             try:
                 image = Image.open(selected_frames, 'r') # Open the selected frames for reading; Parameter has to be r, otherwise ValueError will occu
@@ -120,23 +120,27 @@ class Encode(LSB):
 
 
 
+
+
             new_img_name = selected_frames # Frame Number
             newimage.save(new_img_name, str(new_img_name.split(".")[1].upper())) # Save as New Frame
             counter += 1
         
 
-
         #save the frames and save it as video
-        """capture = cv2.VideoCapture(og_path) # Stores OG Video into a Capture Window
-        fps = capture.get(cv2.CAP_PROP_FPS) # Extracts FPS of OG Video
+        images = [img for img in os.listdir("output/10_frames") if img.endswith(".png")]
+        frame = cv2.imread(os.path.join("output/10_frames", images[10]))
+        height, width, layers = frame.shape
 
-        video_path_real = video_path + "\\%d.png" # To Get All Frames in Folder
+        video = cv2.VideoWriter("steg_video.avi", 0, 1, (width,height))
 
-        os.system("ffmpeg-4.3.1-2020-10-01-full_build\\bin\\ffmpeg -framerate %s -i \"%s\" -codec copy output\\combined_video_only.mkv" % (str(int(fps)), video_path_real)) # Combining the Frames into a Video
-        os.system("ffmpeg-4.3.1-2020-10-01-full_build\\bin\\ffmpeg -i output\\combined_video_only.mkv -i \"%s\" -codec copy output\\combined_video_audio.mkv" % audio_path) # Combining the Frames and Audio into a Video
+        for image in images:
+            video.write(cv2.imread(os.path.join("output", image)))
+
+        cv2.destroyAllWindows()
+        video.release()
 
         print("Combining Complete!")
-"""
 
 
 def main():
@@ -165,7 +169,8 @@ def main():
                         print("\nStarting Frame must be larger than ending Frame! Please try again...")
                 except ValueError:
                     print("\nInteger expected! Please try again...")
-            Encode(payload, coverobj, bits, frame_start, frame_end)
+            frame_location = input("Frames Location: ")
+            Encode(payload, coverobj, bits, frame_start, frame_end, frame_location)
 
         elif start_step == 2:
             print("Starting Program...\n")
