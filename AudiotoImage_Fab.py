@@ -129,6 +129,8 @@ elif choice == 2:
     bitPos.sort()
     image = cv2.imread(image)
     text = textDecode(image,bitPos)
+    file = open(r"Text\secret_message.txt", "w")
+    file.write(text)
     print(text)
 
 else:
