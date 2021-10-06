@@ -11,7 +11,8 @@ File_Cover_Object = ""
 File_Payload = ""
 Cover_Object_Extension = ""
 Payload_Extension = ""
-Charmander = "static/uploads/charmander.png"
+Charmander = "static/uploads/charmander.jpg"
+Pikachu = "static/uploads/pikachu.png"
 
 app = Flask(__name__)  # create an instance and initialise the flask
 app.secret_key = "Charmander"
@@ -27,7 +28,7 @@ app.config.update(
 dropzone = Dropzone(app)
 
 app.config['DROPZONE_MAX_FILES'] = 1  # Set Max amount of file user can input to 1
-app.config['DROPZONE_MAX_FILE_SIZE'] = 2  # Set Max allowed file size to 2mb
+app.config['DROPZONE_MAX_FILE_SIZE'] = 10  # Set Max allowed file size to 2mb
 app.config['DROPZONE_DEFAULT_MESSAGE'] = "Drop / Click to Upload File"
 
 
@@ -36,7 +37,7 @@ app.config['DROPZONE_DEFAULT_MESSAGE'] = "Drop / Click to Upload File"
 @app.route('/')  # provide Flask an URL on which function to be triggered (root)
 def home():
     # indicate which html file to render
-    return render_template('encode.html', charmander=Charmander)
+    return render_template('encode.html', charmander=Pikachu)
 
 
 @app.route('/encode', methods=['POST', 'GET'])
@@ -48,7 +49,7 @@ def encode():
 
     if request.method == 'POST':
 
-        try:
+        # try:
             LSB = request.form['LSB']
             print(LSB)
             # Check File Extension & if there's a file
@@ -58,21 +59,21 @@ def encode():
                 flash('Please input a file')
 
                 # CHECK THE FILE EXTENSION AND EXECUTE ACCORDINGLY
-
+            print(ext)
             if ext == 'text':
-                pass
+                return render_template('output.html', Original_Document=File_Cover_Object, Stegoed_Document=File_Cover_Object, Payload=File_Payload, charmander=Charmander)
             if ext == 'img':
                 # file = logic(file_name)
                 # f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
                 cover_img = ""
-                return render_template('picture.html', filename=File_Cover_Object, filename1=File_Cover_Object)
-            elif ext == 'audio':
-                return render_template('audio.html', filename=File_Cover_Object, filename1=File_Cover_Object)
+                return render_template('output.html', Original_Image=File_Cover_Object, Stegoed_Image=File_Cover_Object, Payload=File_Payload, charmander=Charmander)
             elif ext == 'video':
-                return render_template('video.html', filename=File_Cover_Object, filename1=File_Cover_Object)
+                return render_template('output.html', Original_Video=File_Cover_Object, Stegoed_Video=File_Cover_Object, Payload=File_Payload, charmander=Charmander)
+            elif ext == 'audio':
+                return render_template('output.html', Original_Audio=File_Cover_Object, Stegoed_Audio=File_Cover_Object, Payload=File_Payload, charmander=Charmander)
 
-        except:
-            flash("Please input everything in the form")
+        # except:
+        #    flash("Please input everything in the form")
 
     return render_template('encode.html', charmander=Charmander)
 
@@ -96,21 +97,20 @@ def decode():
                 # CHECK THE FILE EXTENSION AND EXECUTE ACCORDINGLY
 
             if ext == 'text':
-                pass
+                return render_template('output.html', Original_Document=File_Cover_Object, Stegoed_Document=File_Cover_Object, Payload=File_Payload, charmander=Charmander)
             if ext == 'img':
                 # file = logic(file_name)
                 # f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
-                cover_img = ""
-                return render_template('picture.html', filename=File_Cover_Object, filename1=File_Cover_Object)
-            elif ext == 'audio':
-                return render_template('audio.html', filename=File_Cover_Object, filename1=File_Cover_Object)
+                return render_template('output.html', Original_Image=File_Cover_Object, Stegoed_Image=File_Cover_Object, Payload=File_Payload, charmander=Charmander)
             elif ext == 'video':
-                return render_template('video.html', filename=File_Cover_Object, filename1=File_Cover_Object)
+                return render_template('output.html', Original_Video=File_Cover_Object, Stegoed_Video=File_Cover_Object, Payload=File_Payload, charmander=Charmander)
+            elif ext == 'audio':
+                return render_template('output.html', Original_Audio=File_Cover_Object, Stegoed_Audio=File_Cover_Object, Payload=File_Payload, charmander=Charmander)
 
         except:
             flash("Please input everything in the form")
 
-    return render_template('decode.html', charmander=Charmander)
+    return render_template('decode.html', charmander=Pikachu)
 
 
 @app.route('/first_upload', methods=['Post'])
@@ -150,26 +150,14 @@ def second_upload():
 
 
 @app.route('/display/<filename>')
-def display_image(filename):
+def display(filename):
     # print('display_image filename: ' + filename)
-    return redirect(url_for('static', filename='uploads/' + filename), code=301)
-
-
-@app.route('/display/<filename>')
-def display_video(filename):
-    # print('display_video filename: ' + filename)
-    return redirect(url_for('static', filename='uploads/' + filename), code=301)
-
-
-@app.route('/display/<filename>')
-def display_audio(filename):
-    # print('display_video filename: ' + filename)
     return redirect(url_for('static', filename='uploads/' + filename), code=301)
 
 
 def detect_file_type(ext):
     img_type = ["jpeg", "jpg", "png", "bmp"]
-    document = ["word", "txt", "xls"]
+    document = ["word", "txt", "xls", "pdf"]
     audio = ["mp3", "wav"]
     video = ["mp4"]
     ext = ext.lower()
@@ -177,7 +165,7 @@ def detect_file_type(ext):
         return 'img'
     elif ext in document:
         return 'text'
-    elif ext in video:
+    elif ext in audio:
         return 'audio'
     elif ext in video:
         return 'video'
@@ -189,10 +177,6 @@ def logic(file, number_of_lsb):
     # Figure out the type of file for us to upload
     # For The Logic team to fill out
     return None
-
-
-def read_text_file():
-    pass
 
 
 if __name__ == '__main__':

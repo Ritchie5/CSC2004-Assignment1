@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Stenography Demo</title>
+
+    <!-- CSS only -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU"
+      crossorigin="anonymous"
+    />
+  <link rel="stylesheet" href="{{ url_for('static', filename = 'css/styles.css') }}">
+  </head>
+
+  <body>
+    <div class="topnav">
+    <a href="{{ url_for('encode') }}">Encode</a>
+    <a href="{{ url_for('decode') }}">Decode</a>
+    </div>
+
+
+<!-- Image Display -->
+
+    {% if Original_Image %}    
+    <h2 class="text-center">Original Img</h2>
+    <div class="d-flex justify-content-center">
+        <img
+          src="{{ url_for('display', filename=Original_Image) }}"
+          style="width: auto; height: 30vh"
+        />
+      </div>
+    {% endif %}
+
+
+      {% if Stegoed_Image %}
+      <h2 class="text-center">Covered Img</h2>
+      <div class="d-flex justify-content-center">
+      <img
+          src="{{ url_for('display', filename=Stegoed_Image) }}"
+          style="width: auto; height: 30vh"
+        />
+          </div>
+      {% endif %}
+
+
+<!-- Video Display -->
+
+      {% if Original_Video %}    
+      <h2 class="text-center">Original Video</h2>
+      <div class="d-flex justify-content-center">
+          <video controls="controls" preload="preload" width="auto" height="240">
+            <source src="{{ url_for('display', filename=Original_Video) }}" type="video/mp4"></source>
+          </video>
+          <h1>{{filename}}</h1>
+        </div>
+          {% endif %}
+
+      {% if Stegoed_Video %}    
+      <h2 class="text-center">Covered Video</h2>
+      <div class="d-flex justify-content-center">
+          <video controls="controls" preload="preload" width="auto" height="240">
+            <source src="{{ url_for('display', filename=Stegoed_Video) }}" type="video/mp4"></source>
+          </video>
+        </div>
+      {% endif %}
+
+
+<!-- Audio Display -->
+
+    {% if Original_Audio %}    
+    <h2 class="text-center">Original Audio</h2>
+    <div class="d-flex justify-content-center">
+          <audio controls>
+            <source src="{{ url_for('display', filename=Original_Audio) }}" type="audio/mpeg"></source>
+          </audio>
+    </div>
+    {% endif %}
+
+    {% if Stegoed_Audio %}    
+    <h2 class="text-center">Covered Audio</h2>
+    <div class="d-flex justify-content-center">          
+      <audio controls>
+            <source src="{{ url_for('display', filename=Stegoed_Audio) }}" type="audio/mpeg"></source>
+          </audio>
+    </div>
+    {% endif %}
+
+
+<!--Document Display-->
+    {% if Original_Document %}    
+    <h2 class="text-center">Original Document</h2>
+    <div class="d-flex justify-content-center">
+      <iframe src="{{ url_for('display', filename=Original_Document) }}" frameborder="0" style="border: 1px solid black;" height="500px" width="70%"></iframe>
+    </div>
+    {% endif %}
+
+    {% if Stegoed_Document %}    
+    <h2 class="text-center" style="margin-top: 2vh;">Covered Document</h2>
+    <div class="d-flex justify-content-center">
+      <iframe src="{{ url_for('display', filename=Stegoed_Document) }}" frameborder="0" style="border: 1px solid black;" height="500px" width="70%"></iframe>
+    </div>
+
+    {% endif %}
+
+
+<!--Payload Display-->
+
+    {% if Payload %}    
+    <h2 class="text-center" style="margin-top: 2vh;">Payload</h2>
+    <div class="d-flex justify-content-center">
+      <iframe src="{{ url_for('display', filename=Payload) }}" frameborder="0" style="border: 1px solid black;" height="500px" width="70%" allowfullscreen></iframe>
+    </div>
+
+    {% endif %}
+
+  <div class="bg-dark" style="height: 10vh;">
+          <img
+          src="{{ charmander }}"
+          style="margin-left: 88vw; margin-top: -17vh; width: auto; height: 12vh"
+        />
+    </div>
+
+  </body>
+</html>
