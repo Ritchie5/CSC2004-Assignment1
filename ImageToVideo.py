@@ -180,7 +180,7 @@ def Encode(payload, coverobj, bits):
     image_files = ['output/10_frames/'+ img for img in os.listdir("output/10_frames") if img.endswith(".png")]
     image_files.sort(key=natural_keys)
     clip = moviepy.video.io.ImageSequenceClip.ImageSequenceClip(image_files, fps=30)
-    clip.write_videofile('output.mp4')
+    clip.write_videofile('steg_video.mp4')
     print("Combining Complete!")
 
 
