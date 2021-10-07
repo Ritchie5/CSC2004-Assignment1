@@ -14,7 +14,20 @@ def atoi(text):
 def natural_keys(text):
     return [ atoi(c) for c in re.split(r'(\d+)', text) ]
 
-
+def getframes(coverobj):                                                                     # hardcoding of video (require fixing)
+    # Splitting of Videos into Frames
+    print("\nRetriving frames from video. Please Wait...")
+    frames = 0
+    video_object = VideoFileClip("10.mp4")
+    base_filename = os.path.splitext(os.path.basename("10.mp4"))[0]
+    directory = "output\\" + base_filename + '_frames\\' # Returns all frames in the video object
+    if not os.path.isdir(directory):# Checks if output Directory Exists, otherwise Create It
+        os.makedirs(directory)
+    for index, frame in enumerate(video_object.iter_frames()):
+        img = Image.fromarray(frame, 'RGB')
+        img.save(f'{directory}{index}.png')
+        frames += 1
+    print("\nTotal number of Frames: ", frames)
 
 # to get the object's size, data, file_format
 def get_object(file):
@@ -45,7 +58,6 @@ def to_binary(data):
 def to_utf8_bytes(data):
     return bytes(''.join(chr(int(x, 2)) for x in data), encoding='utf8')
 
-
 # data into base 64
 def to_base64(object):
     # convert object into base 64
@@ -55,107 +67,105 @@ def to_base64(object):
     object_base64 = encoded_string_payload + criteria + encoded_fileformat_payload + criteria
     return object_base64
 
+# to modify the selected frames with input data 
+def encoder (selected_newframe, encodetext, bits):
+    w = selected_newframe.size[0]
+    (x, y) = (0, 0) # width and height
+ 
+    for pixel in modifyPixel(selected_newframe.getdata(), encodetext, bits):   # modify the pixel in the frame with the data
+        selected_newframe.putpixel((x, y), pixel)    # Putting modified pixels in the new image
+        if (x == w - 1):
+            x = 0
+            y += 1
+        else:
+            x += 1
 
 
-def Encode(payload, coverobj, bits):
+# Pixels modified according to encode data
+def modifyPixel(pixel, encodetext, bitPos):
+    datalist = to_binary(encodetext)  # Convert encoding data into 8-bit binary ASCII
+    data_len = len(datalist)  # Find the length of data that needs to be hidden
     
-                                                                                                    # hardcoding of video (require fixing)
-    # Splitting of Videos into Frames
-    frames = 0
-    video_object = VideoFileClip("10.mp4")
-    base_filename = os.path.splitext(os.path.basename("10.mp4"))[0]
-    directory = "output\\" + base_filename + '_frames\\' # Returns all frames in the video object
-    if not os.path.isdir(directory):# Checks if output Directory Exists, otherwise Create It
-        os.makedirs(directory)
-    for index, frame in enumerate(video_object.iter_frames()):
-        img = Image.fromarray(frame, 'RGB')
-        img.save(f'{directory}{index}.png')
-        frames += 1
-    print("\nTotal number of Frames: ", frames)
-    frame_loc = r'C:\Users\ivanc\Cyber Security Fundamentals\CSC2004-Assignment1\output\10_frames' # location of saved frames
+    imagedata = iter(pixel)
+    data_index = 0
 
+    for i in range(data_len):
+        # Extracts 3 pixels at a time
+        pixel = [value for value in imagedata.__next__()[:3] + imagedata.__next__()[:3] + imagedata.__next__()[:3]]
+
+        # convert RGB values to binary format
+        b, g, r = to_binary(pixel)
+        listB=list(b)
+        listG=list(g)
+        listR=list(r)
+        # modify the LSB only if there is still data to store
+        for i in range(len(bitPos)):
+            if data_index < data_len:
+                # hide the data into least significant bit of red pixel
+                #pixel[0] = int(r[:-1] + binary_secret_msg[data_index], 2)
+                listB[bitPos[i]] = datalist[data_index]
+                pixel[0] = int("".join(listB), 2)
+                data_index += 1
+        for i in range(len(bitPos)):
+            if data_index < data_len:
+                # hide the data into least significant bit of green pixel
+                #pixel[1] = int(g[:-1] + binary_secret_msg[data_index], 2)
+                listG[bitPos[i]] = datalist[data_index]
+                pixel[1] = int("".join(listG), 2)
+                data_index += 1
+        for i in range(len(bitPos)):
+            if data_index < data_len:
+                # hide the data into least significant bit of  blue pixel
+                #pixel[2] = int(b[:-1] + binary_secret_msg[data_index], 2)
+                listR[bitPos[i]] = datalist[data_index]
+                pixel[2] = int("".join(listR), 2)
+                data_index += 1
+        # Break out of loop once finish encoded the text
+        if data_index >= data_len:
+            break
+
+# Encoding of payload into different frames of coverobj
+def Encode(payload, coverobj, bitPos):
+    getframes(coverobj)
+    frame_loc = r'C:\Users\ivanc\Cyber Security Fundamentals\CSC2004-Assignment1\output\10_frames' # location of saved frames
+    
     while True:
-                try:
-                    print("Please Enter Start and End Frame where Data will be Hidden At")
-                    start = int(input("Start Frame: "))
-                    end = int(input("End Frame: "))
-                    if start < end:
-                        break
-                    else:
-                        print("\nStarting Frame must be larger than ending Frame! Please try again...")
-                except ValueError:
-                    print("\nInteger expected! Please try again...")
+        try:
+            print("Please Enter Start and End Frame where Data will be Hidden At")
+            start = int(input("Start Frame: "))
+            end = int(input("End Frame: "))
+            if start < end:
+                break
+            else:
+                print("\nStarting Frame must be larger than ending Frame! Please try again...")
+        except ValueError:
+            print("\nInteger expected! Please try again...")
 
     # Convert payload into base 64 then into binary
     payload_details = get_object(payload)
+    payload_data = payload_details[0]
     payload_base64 = to_base64(payload_details)
     binary_payload_data = to_binary(payload_base64)
     payload_len = len(binary_payload_data)
 
-    # Manipulate the Selected Frames (1)Determine the amt of data per frame (2) Duplicate the image
-    data_index = 0
+    # Manipulate the Selected Frames (1) Determine the amt of data per frame (2) Duplicate the image
     data_len = len(binary_payload_data)  # Find the length of data that needs to be hidden
     toBeAmendedFrame = end - start + 1  # Find the total Frames to be amended
-    datapoints = math.ceil(len(payload) / toBeAmendedFrame) # Calculation of the Data distribution per Frame
-    counter = start 
-    for num in range(0, len(payload), datapoints): # Partition of the payload data based on the datapoints 
+    datapoints = math.ceil(len(payload_data) / toBeAmendedFrame) # Calculation of the Data distribution per Frame
+    counter = start
+    for num in range(0, len(payload_data), datapoints): # Partition of the payload byte data based on the datapoints 
         selected_frames = frame_loc +"\\" + str(counter) + ".png"
+        encodetext = payload_data[num:num+datapoints] # Copy the newly distributed byte data into a variable
+        print ("encoded: ", len(encodetext))
         try:
             image = Image.open(selected_frames, 'r') # Open the selected frames for reading; Parameter has to be r, otherwise ValueError will occu
         except FileNotFoundError:
             print("\n%d.png not found! Exiting..." % counter)
             quit()
-        newimage = image.copy() # Duplicate the Selected Frames for manipulation
-    
-
-        """#LSB Algorithm
-        for values in payload:
-            for pixel in values:
-                # convert RGB values to binary format
-                b, g, r = to_binary(pixel)
-                listB=list(b)
-                listG=list(g)
-                listR=list(r)
-                # modify the LSB only if there is still data to store
-                for i in range(len(bits)):
-                    if data_index < data_len:
-                        # hide the data into least significant bit of red pixel
-                        #pixel[0] = int(r[:-1] + binary_secret_msg[data_index], 2)
-                        listB[bits[i]] = binary_payload_data[data_index]
-                        pixel[0] = int("".join(listB), 2)
-                        data_index += 1
-                for i in range(len(bits)):
-                    if data_index < data_len:
-                        # hide the data into least significant bit of green pixel
-                        #pixel[1] = int(g[:-1] + binary_secret_msg[data_index], 2)
-                        listG[bits[i]] = binary_payload_data[data_index]
-                        pixel[1] = int("".join(listG), 2)
-                        data_index += 1
-                for i in range(len(bits)):
-                    if data_index < data_len:
-                        # hide the data into least significant bit of  blue pixel
-                        #pixel[2] = int(b[:-1] + binary_secret_msg[data_index], 2)
-                        listR[bits[i]] = binary_payload_data[data_index]
-                        pixel[2] = int("".join(listR), 2)
-                        data_index += 1
-                # Break out of loop once finish encoded the text
-                if data_index >= data_len:
-                    break        
-
-    
-
-
-
-        encodetext = payload[num:num+datapoints] # Copy the newly distributed data into a variable
-        
-        
-            
-            
-"""
-            
-
+        selected_newframe = image.copy() # Duplicate the Selected Frames for manipulation
+        encoder(selected_newframe, encodetext, bitPos) # encode each selected frame with the partitioned text data
         new_img_name = selected_frames # Frame Number
-        newimage.save(new_img_name, str(new_img_name.split(".")[1].upper())) # Save as New Frame
+        selected_newframe.save(new_img_name, str(new_img_name.split(".")[1].upper())) # Save as New Frame
         counter += 1
 
     #save the frames and save it as video
@@ -164,8 +174,6 @@ def Encode(payload, coverobj, bits):
     clip = moviepy.video.io.ImageSequenceClip.ImageSequenceClip(image_files, fps=30)
     clip.write_videofile('steg_video.mp4')
     print("Combining Complete!")
-
-    
 
 
 def main():
@@ -179,7 +187,7 @@ def main():
         if start_step == 1:
             print("Starting Program...\n")
             print("=== Hide Data in Frames ===")
-            payload = r'C:\Users\ivanc\Cyber Security Fundamentals\CSC2004-Assignment1\Text\Text.text' #input("Input payload to Hide (inc. extension): ")
+            payload = r'C:\Users\ivanc\Cyber Security Fundamentals\CSC2004-Assignment1\Text\Text.txt' #input("Input payload to Hide (inc. extension): ")
             bits = int(input("Number of bits to replace: "))
             bitPos=[]
             for i in range(bits):
@@ -187,7 +195,7 @@ def main():
                 bitPos.append(bitPosInput)
             bitPos.sort()
             coverobj = r'C:\Users\ivanc\Cyber Security Fundamentals\CSC2004-Assignment1\10.mp4'#input("Input Cover Object file (inc. extension): ")
-            Encode(payload, coverobj, bits)
+            Encode(payload, coverobj, bitPos)
 
         elif start_step == 2:
             print("Starting Program...\n")
