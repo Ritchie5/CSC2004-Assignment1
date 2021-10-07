@@ -68,61 +68,50 @@ def to_base64(object):
     return object_base64
 
 # to modify the selected frames with input data 
-def encoder (selected_newframe, encodetext, bits):
-    w = selected_newframe.size[0]
-    (x, y) = (0, 0) # width and height
- 
-    for pixel in modifyPixel(selected_newframe.getdata(), encodetext, bits):   # modify the pixel in the frame with the data
-        selected_newframe.putpixel((x, y), pixel)    # Putting modified pixels in the new image
-        if (x == w - 1):
-            x = 0
-            y += 1
-        else:
-            x += 1
-
-
-# Pixels modified according to encode data
-def modifyPixel(pixel, encodetext, bitPos):
-    datalist = to_binary(encodetext)  # Convert encoding data into 8-bit binary ASCII
-    data_len = len(datalist)  # Find the length of data that needs to be hidden
-    
-    imagedata = iter(pixel)
+def encoder (selected_newframe, encodetext, bitPos):
+    # Convert text to binary
+    selected_newframe_data = selected_newframe.getdata()
+    binary_secret_msg = to_binary(encodetext)  # Convert encoding data into binary
+    data_len = len(binary_secret_msg)  # Find the length of data that needs to be hidden
     data_index = 0
 
-    for i in range(data_len):
-        # Extracts 3 pixels at a time
-        pixel = [value for value in imagedata.__next__()[:3] + imagedata.__next__()[:3] + imagedata.__next__()[:3]]
+    width, height = selected_newframe.size
+    for x in range(width):
+        for y in range(height):
+            b,g,r = to_binary(selected_newframe.getpixel((x,y)))
 
-        # convert RGB values to binary format
-        b, g, r = to_binary(pixel)
-        listB=list(b)
-        listG=list(g)
-        listR=list(r)
-        # modify the LSB only if there is still data to store
-        for i in range(len(bitPos)):
-            if data_index < data_len:
-                # hide the data into least significant bit of red pixel
-                #pixel[0] = int(r[:-1] + binary_secret_msg[data_index], 2)
-                listB[bitPos[i]] = datalist[data_index]
-                pixel[0] = int("".join(listB), 2)
-                data_index += 1
-        for i in range(len(bitPos)):
-            if data_index < data_len:
-                # hide the data into least significant bit of green pixel
-                #pixel[1] = int(g[:-1] + binary_secret_msg[data_index], 2)
-                listG[bitPos[i]] = datalist[data_index]
-                pixel[1] = int("".join(listG), 2)
-                data_index += 1
-        for i in range(len(bitPos)):
-            if data_index < data_len:
-                # hide the data into least significant bit of  blue pixel
-                #pixel[2] = int(b[:-1] + binary_secret_msg[data_index], 2)
-                listR[bitPos[i]] = datalist[data_index]
-                pixel[2] = int("".join(listR), 2)
-                data_index += 1
-        # Break out of loop once finish encoded the text
-        if data_index >= data_len:
-            break
+    for values in selected_newframe_data:
+        for pixel in values:
+            listB=list(b)
+            listG=list(g)
+            listR=list(r)
+            # modify the LSB only if there is still data to store
+            for i in range(len(bitPos)):
+                if data_index < data_len:
+                    # hide the data into least significant bit of red pixel
+                    #pixel[0] = int(r[:-1] + binary_secret_msg[data_index], 2)
+                    listB[bitPos[i]]=binary_secret_msg[data_index]
+                    pixel[0] = int("".join(listB), 2)
+                    data_index += 1
+            for i in range(len(bitPos)):
+                if data_index < data_len:
+                    # hide the data into least significant bit of green pixel
+                    #pixel[1] = int(g[:-1] + binary_secret_msg[data_index], 2)
+                    listG[bitPos[i]]=binary_secret_msg[data_index]
+                    pixel[1] = int("".join(listG), 2)
+                    data_index += 1
+            for i in range(len(bitPos)):
+                if data_index < data_len:
+                    # hide the data into least significant bit of  blue pixel
+                    #pixel[2] = int(b[:-1] + binary_secret_msg[data_index], 2)
+                    listR[bitPos[i]]=binary_secret_msg[data_index]
+                    pixel[2] = int("".join(listR), 2)
+                    data_index += 1
+            # Break out of loop once finish encoded the text
+            if data_index >= data_len:
+                break
+
+    return selected_newframe
 
 # Encoding of payload into different frames of coverobj
 def Encode(payload, coverobj, bitPos):
@@ -156,16 +145,13 @@ def Encode(payload, coverobj, bitPos):
     for num in range(0, len(payload_data), datapoints): # Partition of the payload byte data based on the datapoints 
         selected_frames = frame_loc +"\\" + str(counter) + ".png"
         encodetext = payload_data[num:num+datapoints] # Copy the newly distributed byte data into a variable
-        print ("encoded: ", len(encodetext))
         try:
             image = Image.open(selected_frames, 'r') # Open the selected frames for reading; Parameter has to be r, otherwise ValueError will occu
         except FileNotFoundError:
             print("\n%d.png not found! Exiting..." % counter)
             quit()
-        selected_newframe = image.copy() # Duplicate the Selected Frames for manipulation
-        encoder(selected_newframe, encodetext, bitPos) # encode each selected frame with the partitioned text data
-        new_img_name = selected_frames # Frame Number
-        selected_newframe.save(new_img_name, str(new_img_name.split(".")[1].upper())) # Save as New Frame
+        new_img_name = encoder(image, encodetext, bitPos) # encode each selected frame with the partitioned text data
+        image.save(new_img_name, str(new_img_name.split(".")[1].upper())) # Save as New Frame
         counter += 1
 
     #save the frames and save it as video
