@@ -70,6 +70,7 @@ def textDecode(stegoObj, bitPos):
     frame_bytes = bytearray(list(stegoObj.readframes(stegoObj.getnframes())))
     # print(frame_bytes)
     binaryPayload = ""
+    print(frame_bytes)
     for i in range(len(frame_bytes)):
         for x in range(len(bitPos)):
             # print(format(frame_bytes[i],'08b'))
