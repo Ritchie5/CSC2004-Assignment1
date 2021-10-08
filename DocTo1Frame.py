@@ -1,4 +1,3 @@
-import math
 import numpy as np
 import base64
 import cv2
@@ -14,16 +13,17 @@ def atoi(text):
 def natural_keys(text):
     return [ atoi(c) for c in re.split(r'(\d+)', text) ]
 
-def getframes(coverobj):                                                                     # hardcoding of video (require fixing)
+def getframes(coverobj):                                                                    
     # Splitting of Videos into Frames
     print("\nRetriving frames from video. Please Wait...")
     frames = 0
-    video_object = VideoFileClip("10.mp4")
-    base_filename = os.path.splitext(os.path.basename("10.mp4"))[0]
+    path = os.path.basename(coverobj)
+    video_object = VideoFileClip(path)
+    base_filename = os.path.splitext(path)[0]
     directory = "output\\" + base_filename + '_frames\\' # Returns all frames in the video object
-    if not os.path.isdir(directory):# Checks if output Directory Exists, otherwise Create It
+    if not os.path.isdir(directory):    # Checks if output Directory Exists, otherwise Create It
         os.makedirs(directory)
-    for index, frame in enumerate(video_object.iter_frames()):
+    for index, frame in enumerate(video_object.iter_frames()):  # Saving of frames into the directory
         img = Image.fromarray(frame, 'RGB')
         img.save(f'{directory}{index}.png')
         frames += 1
@@ -33,10 +33,10 @@ def getframes(coverobj):                                                        
 # to get the object's size, data, file_format
 def get_object(file):
     try:
-        file_format = os.path.splitext(file)[-1].lower()
-        size = os.path.getsize(file)
+        file_format = os.path.splitext(file)[-1].lower()    # file format
+        size = os.path.getsize(file)    # size
         with open(file, 'rb') as datafile:
-            data = datafile.read()
+            data = datafile.read()  # data
     except FileNotFoundError:
         print("\nFile to could not be found! Exiting...")
         quit()
@@ -68,7 +68,7 @@ def to_base64(object):
     object_base64 = encoded_string_payload + criteria + encoded_fileformat_payload + criteria
     return object_base64
 
-# Encoding of payload into different frames of coverobj
+# Encoding of payload into a single frame
 def Encode(payload, coverobj, bitPos, hiddenframe):
     frame_loc = r'C:\Users\ivanc\Cyber Security Fundamentals\CSC2004-Assignment1\output\10_frames' # location of saved frames
     
@@ -77,9 +77,10 @@ def Encode(payload, coverobj, bitPos, hiddenframe):
     payload_base64 = to_base64(payload_details)
     binary_payload = to_binary(payload_base64)
 
+    # Select the frames for Encoding
     selected_frames = frame_loc +"\\" + str(hiddenframe) + ".png"
-    image = cv2.imread(selected_frames) # Open selected frame to read its detai
-    n_bytes = image.shape[0] * image.shape[1] * 3 // 8      # calculate the maximum bytes to encode
+    image = cv2.imread(selected_frames) # Open selected frame to read its detail
+    n_bytes = image.shape[0] * image.shape[1] * 3 // 8  # calculate the maximum bytes to encode
 
     # Check if the number of bytes to encode is less than the maximum bytes in the image
     if len(payload_details[0]) > n_bytes:
@@ -87,6 +88,8 @@ def Encode(payload, coverobj, bitPos, hiddenframe):
 
     data_index = 0
     data_len = len(binary_payload)  # Find the length of data that needs to be hidden
+    
+    # LSB Replacement Algorithm
     for values in image:
         for pixel in values:
             # convert RGB values to binary format
@@ -119,20 +122,22 @@ def Encode(payload, coverobj, bitPos, hiddenframe):
             # Break out of loop once finish encoded the text
             if data_index >= data_len:
                 break
-    
+        
+        # Saving the encoded frames as new frames
         savedframes = frame_loc +"\\" + str(hiddenframe) + ".png"
         cv2.imwrite(savedframes, image)
     
-    # Sort the frames and save it as video
+    # Sequence the frames into a video
     image_files = ['output/10_frames/'+ img for img in os.listdir("output/10_frames") if img.endswith(".png")]
     image_files.sort(key=natural_keys)
     clip = moviepy.video.io.ImageSequenceClip.ImageSequenceClip(image_files, fps=30)
     clip.write_videofile('steg_video.mp4')
     print("Combining Complete!")
 
-# Function to decode image to text
+# Decoding of payload into a single frame
 def Decode(encodedvideo, bitPos, hiddenframe):
-    frame_loc = r'C:\Users\ivanc\Cyber Security Fundamentals\CSC2004-Assignment1\output\10_frames' # location of saved frames
+    # location of saved frames
+    frame_loc = r'C:\Users\ivanc\Cyber Security Fundamentals\CSC2004-Assignment1\output\10_frames' 
     selected_frames = frame_loc +"\\" + str(hiddenframe) + ".png"
     image = cv2.imread(selected_frames) # Open selected frame to read its detai
     binary_data = ""
@@ -140,9 +145,9 @@ def Decode(encodedvideo, bitPos, hiddenframe):
     for values in image:
         for pixel in values:
             b, g, r = to_binary(pixel)  # convert the red,green and blue values into binary format
-            binary_data += b[-1]  # extracting data from the least significant bit of red pixel
-            binary_data += g[-1]  # extracting data from the least significant bit of green pixel
-            binary_data += r[-1]  # extracting data from the least significant bit of blue pixel
+            #binary_data += b[-1]  # extracting data from the least significant bit of red pixel
+            #binary_data += g[-1]  # extracting data from the least significant bit of green pixel
+            #binary_data += r[-1]  # extracting data from the least significant bit of blue pixel
             for i in range(len(bitPos)):
                 binary_data += b[bitPos[i]]
             for i in range(len(bitPos)):
@@ -164,6 +169,7 @@ def Decode(encodedvideo, bitPos, hiddenframe):
 
 def main():
     # Menu
+    frames = 0
     print("1: (Encode) Hide Text into Video")
     print("2: (Decode) Recover Text from Video")
     try:
@@ -173,14 +179,14 @@ def main():
         if start_step == 1:
             print("Starting Program...\n")
             print("=== Hide Data in Frames ===")
-            payload = input("Input payload to Hide (inc. extension): ")
+            payload = input("Input payload to Hide (with extension): ")
             bits = int(input("Number of bits to replace: "))
             bitPos=[]
             for i in range(bits):
                 bitPosInput = int(input("Enter bit position # "+ str(i+1)+" to replace(0-7): "))
                 bitPos.append(bitPosInput)
             bitPos.sort()
-            coverobj = r'C:\Users\ivanc\Cyber Security Fundamentals\CSC2004-Assignment1\10.mp4'#input("Input Cover Object file (inc. extension): ")
+            coverobj = input("Input Cover Object file (with extension): ")
             frames = getframes(coverobj)
             # Select the frames to be used
             while True:
@@ -199,7 +205,7 @@ def main():
         elif start_step == 2:
             print("Starting Program...\n")
             print("=== Recover Data in Frames ===")
-            encodedvideo = r'C:\Users\ivanc\Cyber Security Fundamentals\CSC2004-Assignment1\steg_video.mp4'    #input("Enter the path of image with embedded secret message:")
+            encodedvideo = input("Enter the saved encoded Video (with extension):")
             print("Enter in key to decode\n")
             bits=int(input("Enter number of bits replaced: "))
             bitPos=[]
@@ -207,7 +213,6 @@ def main():
                 bitPosInput=int(input("Enter bit position #"+ str(i+1)+" replaced(0-7): "))
                 bitPos.append(bitPosInput)
             bitPos.sort()
-            frames = getframes(encodedvideo)
             # Select the frames to be used
             while True:
                 try:
