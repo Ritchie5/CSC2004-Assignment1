@@ -1,37 +1,39 @@
-from PIL import Image
 import numpy as np
 import base64
+import cv2
 import os
 
 class LSB:
-    def set_bits(self, bits):
-        self.bits = int(bits)
-        if not 0 <= self.bits <= 5:
-            raise ValueError('[!] Number of bits needs to be between 0 - 5.')
-    
-    # to get secret message object's format, size, data 
-    def get_secret_object(self, file, itype):
+
+    # to get object's format, size, data 
+    def get_object_info(self, file, itype):
         try:
             file_format = os.path.splitext(file)[-1].lower()
             size = os.path.getsize(file)
+            name = os.path.basename(file)
+            name = name.replace(file_format, '')
+        except IOError:
+            print('[!] {} file could not be opened.'.format(itype.title()))
+        return size, file_format, name
+
+    def get_secret_object(self, file, itype):
+        try:
             with open(file, 'rb') as data:
                 data = data.read()
         except IOError:
             print('[!] {} file could not be opened.'.format(itype.title()))
-        return data, size, file_format
+        return data
         
-    def get_cover_object(self, file, itype):
+    def get_cover_image(self, file, itype):
         try:
-            size = os.path.getsize(file)
-            data = Image.open(file)
+            data =  cv2.imread(file)
         except IOError:
             print('[!] {} file could not be opened.'.format(itype.title()))
-        return data, size
+        return data
     
-    # image for now!!
     def save_cover_image(self, data, outfile):
         try:
-            data.save(outfile)
+            cv2.imwrite(outfile, data)
         except IOError as e:
             raise IOError('[!] {} file could not be written.'.format(outfile) + '\n[!] {}'.format(e))
         except Exception as e:
@@ -56,89 +58,119 @@ class LSB:
         return bytes(''.join(chr(int(x, 2)) for x in data), encoding='utf8')
         
 class Encode(LSB):
-    def __init__(self, cover, secret, bits, outfile):
-        print('[*] LSB Encoding with bits = {}'.format(bits))
-        self.set_bits(bits)
-        self.outfile = outfile
-        self.cover = self.get_cover_object(cover, 'cover')
+    def __init__(self, cover, secret, bits):
+        print('[*] Encoding... ')
+        self.cover = self.get_cover_image(cover, 'cover')
+        cover_info = self.get_object_info(cover, 'cover')
+        cover_size = cover_info[0]
+        self.outfile = cover_info[2] + "_copy" + cover_info[1]
+
         self.secret = self.get_secret_object(secret, 'secret')
-        secret_size = self.secret[1]
-        cover_size = self.cover[1]
-        self.encode_to_image(secret_size, cover_size)
+        secret_info = self.get_object_info(secret, 'secret')
+        secret_size = secret_info[0]
+
+        bit_pos = bits
+        self.encode_to_image(secret_size, secret_info, cover_size, bit_pos)
 
     # b64 -> binary
-    def to_base64(self):
-        encoded_string = base64.b64encode(self.secret[0])
-        encoded_file_format = base64.b64encode(self.secret[2].encode('utf-8'))
+    def to_base64(self, secret_info):
+        encoded_string = base64.b64encode(self.secret)
+        encoded_file_format = base64.b64encode(secret_info[1].encode('utf-8'))
         
         criteria = '#####'.encode('utf8') # add stopping criteria
         result = encoded_string + criteria + encoded_file_format + criteria
         result = ''.join(self.to_binary(result))
         return result
 
-    def encode_to_image(self, secret_size, cover_size):
+    def encode_to_image(self, secret_size, secret_info, cover_size, bit_pos):
         data_index = 0
 
         print("[*] Maximum bytes to encode: ", cover_size)
         if secret_size > cover_size:
             raise ValueError("[!] Insufficient bytes, need bigger image or less data.")
 
-        binary_secret_data = self.to_base64()
-        with self.cover[0] as img:
-            width, height = img.size
-            for x in range(0, width):
-                for y in range(0, height):
-                    pixel = list(img.getpixel((x, y)))
-                    #RGB
-                    for n in range(0, 3):
-                        if(data_index < len(binary_secret_data)):
-                            # pixel[n] & ~(1 << pos) will make the bit 0 and this bit will be used for the payload
-                            pixel[n] = pixel[n] & ~(1 << self.bits) | int(binary_secret_data[data_index]) << self.bits
-                            data_index += 1
-                    img.putpixel((x, y), tuple(pixel))
-            
-            self.save_cover_image(img, self.outfile)
-
+        binary_secret_data = self.to_base64(secret_info)
+        data_len = len(binary_secret_data) # size of data to hide
+        for row in self.cover:
+            for pixel in row:
+                r, g, b = self.to_binary(pixel) # convert RGB values to binary format
+                list_r = list(r)
+                list_g = list(g)
+                list_b = list(b)
+                for i in range(len(bit_pos)):
+                    if data_index < data_len: # modify the least significant bit only if there is still data to store
+                        list_r[bit_pos[i]] = binary_secret_data[data_index] # least significant red pixel bit
+                        pixel[0] = int("".join(list_r), 2)
+                        data_index += 1
+                    else:
+                        break
+                for i in range(len(bit_pos)):
+                    if data_index < data_len:
+                        list_g[bit_pos[i]] = binary_secret_data[data_index] # least significant green pixel bit
+                        pixel[1] = int("".join(list_g), 2)
+                        data_index += 1
+                    else:
+                        break
+                for i in range(len(bit_pos)):
+                    if data_index < data_len: 
+                        list_b[bit_pos[i]] = binary_secret_data[data_index] # least significant blue pixel bit
+                        pixel[2] = int("".join(list_b), 2)
+                        data_index += 1
+                    else:
+                        break
+        self.save_cover_image(self.cover, self.outfile)
+    
 class Decode(LSB):
     def __init__(self, steg, bits):
-        print('[*] LSB Decoding with bits = {}'.format(bits))
-        self.set_bits(bits)
-        self.steg = self.get_cover_object(steg, 'steg')
-        self.decode_from_image()
+        print('[*] Decoding... ')
+        self.steg = self.get_cover_image(steg, 'steg')
+        bit_pos = bits
+        self.decode_from_image(bit_pos)
     
     # binary -> b64
     def from_base64(self, data):
-        split_binary = [data[i:i+8] for i in range(0,len(data),8)]
-        decoded_string = self.to_utf8_bytes(split_binary)
+        decoded_string = self.to_utf8_bytes(data)
         result = decoded_string.split('#####'.encode('utf8'))
         message = base64.b64decode(result[0])
         file_format = base64.b64decode(result[1])
         return message, file_format
 
-    def decode_from_image(self):
-        extracted_bin = []
-        with self.steg[0] as img:
-            width, height = img.size
-            for x in range(0, width):
-                for y in range(0, height):
-                    pixel = list(img.getpixel((x, y)))
-                    for n in range(0, 3):
-                        extracted_bin.append(pixel[n] >> self.bits & 1)
+    def decode_from_image(self, bit_pos):
+        binary_data = ""
+        for row in self.steg:
+            for pixel in row:
+                r, g, b = self.to_binary(pixel)
+                for i in range(len(bit_pos)):
+                    binary_data += r[bit_pos[i]]
+                for i in range(len(bit_pos)):
+                    binary_data += g[bit_pos[i]]
+                for i in range(len(bit_pos)):
+                    binary_data += b[bit_pos[i]]
         
-        data = "".join([str(x) for x in extracted_bin])
-        message = self.from_base64(data)[0]
-        file_format = self.from_base64(data)[1].decode("utf-8")
+        # split by 8 bits
+        extracted_bin = [binary_data[i: i+8] for i in range(0, len(binary_data), 8)]
+        
+        message = self.from_base64(extracted_bin)[0]
+        file_format = self.from_base64(extracted_bin)[1].decode("utf-8")
         self.write_file(file_format, message)
 
 def main():
     
     payload = input("Enter payload file: ")
     cover_image = input("Enter image file: ")
-    steg_image = input("Enter steg image name: ") # DONT NEED !!! unless they download it, so i need to change to a name and give it :) just name it img_copy
-    number = input("Enter the bit: ")
 
-    Encode(cover_image, payload, number, steg_image)
-    Decode(steg_image, number) # image_secret_message <- change to this name when writing it out
+    bits = int(input("Bits to replace? "))
+    bit_pos = []
+    for i in range(bits):
+        bitPosInput = int(input("Enter bit position #" + str(i+1) + " to replace (0 - 7) : "))
+        bit_pos.append(bitPosInput)
+    bit_pos.sort()
+
+    Encode(cover_image, payload, bit_pos)
+    
+    steg_image = input("Enter steg image name: ") 
+    
+    Decode(steg_image, bit_pos) 
 
 if __name__ == '__main__':
     main()
