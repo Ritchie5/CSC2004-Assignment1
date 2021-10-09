@@ -24,7 +24,7 @@ class LSB:
         return data
 
     def write_file(self, file_format, name, text):
-        with open('Scripts\\static\decode_output\\' + name + '_secret' + file_format, 'wb') as f:
+        with open('static\decode_output\\' + name + '_secret' + file_format, 'wb') as f:
             f.write(text)
     
     # ========================================== COVER OBJECT : IMAGE ==========================================
@@ -59,13 +59,13 @@ class LSB:
     def to_utf8_bytes(self, data):
         return bytes(''.join(chr(int(x, 2)) for x in data), encoding='utf8')
         
-class Encode(LSB):
+class Img_Encode(LSB):
     def __init__(self, cover, secret, bits):
         print('[*] Encoding... ')
         self.cover = self.get_cover_image(cover, 'cover')
         cover_info = self.get_object_info(cover, 'cover')
         cover_size = cover_info[0]
-        self.outfile = 'Scripts\\static\encode_output\\' + cover_info[2] + "_copy" + cover_info[1]
+        self.outfile = 'static\encode_output\\' + cover_info[2] + "_copy" + cover_info[1]
 
         self.secret = self.get_secret_object(secret, 'secret')
         secret_info = self.get_object_info(secret, 'secret')
@@ -123,7 +123,7 @@ class Encode(LSB):
                         break
         self.save_cover_image(self.cover, self.outfile)
     
-class Decode(LSB):
+class Img_Decode(LSB):
     def __init__(self, steg, bits):
         print('[*] Decoding... ')
         self.steg = self.get_cover_image(steg, 'steg')
@@ -162,7 +162,7 @@ class Decode(LSB):
         name = self.from_base64(extracted_bin)[2].decode("utf-8")
         self.write_file(file_format, name, message)
 
-        return name + file_format
+        return name + "_secret" + file_format
 
 def main():
     
@@ -176,11 +176,11 @@ def main():
         bit_pos.append(bitPosInput)
     bit_pos.sort()
 
-    Encode(cover_image, payload, bit_pos)
+    Img_Encode(cover_image, payload, bit_pos)
     
     steg_image = input("Enter steg image name: ") 
     
-    Decode(steg_image, bit_pos)
+    Img_Decode(steg_image, bit_pos)
 
 
 if __name__ == '__main__':

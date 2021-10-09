@@ -136,28 +136,24 @@ def decode():
             # Get Secret
             if ext == 'img':
                 print("IMG decoding")
-                Decode_class = Img_Decode(Filepath_Cover_Object, LSB)
+                Decode_file = Img_Decode(Filepath_Cover_Object, LSB)
 
             elif ext == 'audio':
-                Decode_class = Audio_Decode(Filepath_Cover_Object, LSB)
+                Decode_file = Audio_Decode(Filepath_Cover_Object, LSB)
 
-            filepath = Decode_class.filepath
-            temp = filepath
-            print(filepath)
-            Stego_Object = output_filename(File_Cover_Object, "Decode")
-            Stego_Object = Stego_Object.split(".")[0] + filepath
-            ext = detect_file_type(filepath)
-            print(Stego_Object)
+            print(Decode_file)
+            temp = Decode_file
+            # ext = temp.split(".")[1]
 
             # Displaying Secret
             if ext == 'txt':
-                return render_template('output.html', Orginal_text=Stego_Object, charmander=Pikachu)
+                return render_template('output.html', Original_Document=Decode_file, charmander=Pikachu, twenty=1)
             if ext == 'img':
-                return render_template('output.html', Orginal_Image=Stego_Object, charmander=Pikachu)
+                return render_template('output.html', Original_Image=Decode_file, charmander=Pikachu, forty=1)
             if ext == 'audio':
-                return render_template('output.html', Orginal_Audio=Stego_Object, charmander=Pikachu)
+                return render_template('output.html', Original_Audio=Decode_file, charmander=Pikachu, sixty=1)
             if ext == 'video':
-                return render_template('output.html', Orginal_Video=Stego_Object, charmander=Pikachu)
+                return render_template('output.html', Original_Video=Decode_file, charmander=Pikachu, twenty=1)
 
         else:
             flash("Please input everything in the form")
@@ -212,12 +208,6 @@ def display(filename):
 
     else:
         return redirect(url_for('static', filename='uploads/' + filename), code=301)
-
-
-def display(filename):
-    print('display_image filename: ' + filename)
-
-    return redirect(url_for('static', filename='uploads/' + filename), code=301)
 
 
 def output_filename(filename, output):

@@ -25,7 +25,7 @@ class LSB:
         return data
 
     def write_file(self, file_format, name, text):
-        with open('Scripts\\static\decode_output\\' + name + '_secret' + file_format, 'wb') as f:
+        with open('static\decode_output\\' + name + '_secret' + file_format, 'wb') as f:
             f.write(text)
 
     # ======================================= COVER OBJECT : AUDIO (WAV) =======================================
@@ -73,7 +73,7 @@ class Audio_Encode(LSB):
         ori_cover_obj = self.get_cover_audio(cover, 'cover')[0]
         cover_info = self.get_object_info(cover, 'cover')
         cover_size = cover_info[0]
-        self.outfile = 'Scripts\\static\encode_output\\' + cover_info[2] + "_copy" + cover_info[1]
+        self.outfile = 'static\encode_output\\' + cover_info[2] + "_copy" + cover_info[1]
 
         self.secret = self.get_secret_object(secret, 'secret')
         secret_info = self.get_object_info(secret, 'secret')
@@ -117,7 +117,7 @@ class Audio_Encode(LSB):
         self.save_cover_audio(self.cover, self.outfile, ori_cover_obj)
 
 
-class Decode(LSB):
+class Audio_Decode(LSB):
     def __init__(self, steg, bits):
         print('[*] Decoding... ')
         self.steg = self.get_cover_audio(steg, 'steg')[1]
@@ -168,7 +168,7 @@ def main():
 
     steg_audio = input("Enter steg audio name: ")
 
-    Decode(steg_audio, bit_pos)
+    Audio_Decode(steg_audio, bit_pos)
 
 
 if __name__ == '__main__':

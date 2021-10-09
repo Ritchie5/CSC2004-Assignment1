@@ -33,7 +33,7 @@
     <p class="text-center" style="margin-top: 2vh;">{{ Hash1 }}</p>    
     {% endif %}
 
-    {% if Original_Video %}    
+    {% if Original_Video %}
     <h2 class="text-center">Original Video</h2>
     <div class="d-flex justify-content-center">
       <video controls="controls" preload="preload" width="auto" height="240">
@@ -104,6 +104,18 @@
     {% endif %}
 
 <!--Payload Display-->
+    {% if twenty %}
+    <div style="height: 20vh;"></div>
+    {% endif %}
+
+    {% if forty %}
+    <div style="height: 40vh;"></div>
+    {% endif %}
+    
+    {% if sixty %}
+    <div style="height: 60vh;"></div>
+    {% endif %}
+
 
     {% if Payload %}    
     <h2 class="text-center" style="margin-top: 2vh;">Payload</h2>
@@ -116,9 +128,10 @@
   <div class="bg-dark" style="height: 10vh;">
           <img
           src="{{ charmander }}"
-          style="margin-left: 88vw; margin-top: -17vh; width: auto; height: 12vh"
+          style="margin-left: 88vw; margin-top: -20vh; width: auto; height: 12vh"
         />
     </div>
+
 
   </body>
 </html>
