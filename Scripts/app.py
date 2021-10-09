@@ -61,6 +61,7 @@ def encode():
         if request.form.getlist('LSB'):
             LSB_bits = request.form.getlist('LSB')
             LSB_bits = [int(numbers) for numbers in LSB_bits]
+            speech_recognition = request.form['speech_recognition']
 
             # Check File Extension
             ext = detect_file_type(Cover_Object_Extension)
@@ -71,15 +72,20 @@ def encode():
                 flash('Please input a file')
                 return render_template('encode.html', charmander=Charmander)
 
+            Cover_object_size = os.path.getsize(Filepath_Cover_Object)
+            Payload_size = os.path.getsize(Filepath_Payload)
+            if Cover_object_size < Payload_size:
+                flash('Payload too large for selected cover object')
+                return render_template('encode.html', charmander=Charmander)
+
             Hash1 = hash1(Filepath_Cover_Object)
             Hash1 = "Hash: " + Hash1
             Hash2 = hash1(Filepath_Payload)
             Hash2 = "Hash: " + Hash2
 
-            # CHECK THE FILE EXTENSION AND EXECUTE ACCORDINGLY
-            if ext == 'text':
-                return render_template('output.html', Original_Document=File_Cover_Object,
-                                       Stegoed_Document=File_Cover_Object, charmander=Charmander, Hash1=Hash1, Hash2=Hash2)
+            # CHECK THE FILE EXTENSION AND EXECUTE ACCORDINGLY if ext == 'text': return render_template(
+            # 'output.html', Original_Document=File_Cover_Object, Stegoed_Document=File_Cover_Object,
+            # charmander=Charmander, Hash1=Hash1, Hash2=Hash2)
 
             if ext == 'img':
                 Img_Encode(Filepath_Cover_Object, Filepath_Payload, LSB_bits)
@@ -92,11 +98,10 @@ def encode():
                 Stego_Audio = output_filename(File_Cover_Object, "Encode")
                 return render_template('output.html', Original_Audio=File_Cover_Object, Stegoed_Audio=File_Cover_Object,
                                        charmander=Charmander, Hash1=Hash1, Hash2=Hash2)
-            elif ext == 'video':
-                return render_template('output.html', Original_Video=File_Cover_Object, Stegoed_Video=File_Cover_Object,
-                                       charmander=Charmander, Hash1=Hash1, Hash2=Hash2)
-
-
+            
+            # elif ext == 'video':
+            #    return render_template('output.html', Original_Video=File_Cover_Object, Stegoed_Video=File_Cover_Object,
+            #                           charmander=Charmander, Hash1=Hash1, Hash2=Hash2)
 
         else:
             flash("Please input everything in the form")
@@ -153,13 +158,10 @@ def first_upload():
         # CHECK IF THE FILE AND FORM IS SUBMITTED
         if request.files.get('file'):
             f = request.files.get('file')
-
-            print(os.path.join(app.config['UPLOADED_PATH']))
             f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
             Filepath_Cover_Object = os.path.join(app.config['UPLOADED_PATH'], f.filename)
             File_Cover_Object = f.filename
             Cover_Object_Extension = f.filename.split('.')[1]
-            print(File_Cover_Object)
         return File_Cover_Object
 
 
@@ -225,12 +227,6 @@ def detect_file_type(ext):
         return 'video'
     else:
         return ""
-
-
-def logic(file, number_of_lsb):
-    # Figure out the type of file for us to upload
-    # For The Logic team to fill out
-    return None
 
 
 if __name__ == '__main__':
