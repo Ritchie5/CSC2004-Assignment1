@@ -73,7 +73,7 @@ def to_base64(object):
 
 # binary -> b64
 def from_base64(data):
-    #print(data)
+    #print(data)1
     decoded_string = to_utf8_bytes(data)
     result = decoded_string.split('#####'.encode('utf8'))
     print(result[0])
@@ -82,7 +82,7 @@ def from_base64(data):
 
 # Encoding of payload into a single frame
 def Encode(payload, coverobj, bitPos, hiddenframe):
-    frame_loc = r'C:\Users\Tyne\OneDrive\Documents\GitHub\CSC2004-Assignment1\output\10_frames' # location of saved frames
+    frame_loc = r'output\10_frames' # location of saved frames
     
     # Convert payload into base 64 then into binary
     payload_details = get_object(payload)
@@ -150,7 +150,7 @@ def Encode(payload, coverobj, bitPos, hiddenframe):
 # Decoding of payload into a single frame
 def Decode(encodedvideo, bitPos, hiddenframe):
     # location of saved frames
-    frame_loc = r'C:\Users\Tyne\OneDrive\Documents\GitHub\CSC2004-Assignment1\output\steg_video_frames' 
+    frame_loc = r'output\steg_video_frames' 
     selected_frames = frame_loc +"\\" + str(hiddenframe) + ".png"
     image = cv2.imread(selected_frames) # Open selected frame to read its detai
     binary_data = ""
@@ -170,8 +170,9 @@ def Decode(encodedvideo, bitPos, hiddenframe):
     # split by 8-bits
     all_bytes = [binary_data[i: i + 8] for i in range(0, len(binary_data), 8)]
 
+    #print(all_bytes)
     message = from_base64(all_bytes) 
-    print(message)
+    
 
     with open("Text\secret_decodemessage.txt", "w", encoding="utf-8") as f:
         f.write(message)
