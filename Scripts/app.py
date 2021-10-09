@@ -79,6 +79,10 @@ def encode():
                 flash('Payload too large for selected cover object')
                 return render_template('encode.html', charmander=Charmander)
 
+            if (Cover_object_size/8)*len(LSB_bits) < Payload_size:
+                flash('Payload too large, please add more bit for replacement')
+                return render_template('encode.html', charmander=Charmander)
+
             Hash1 = hash1(Filepath_Cover_Object)
             Hash1 = "Hash: " + Hash1
             Hash2 = hash1(Filepath_Payload)
