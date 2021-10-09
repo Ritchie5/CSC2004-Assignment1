@@ -24,7 +24,7 @@ class LSB:
         return data
 
     def write_file(self, file_format, name, text):
-        with open('static\decode_output\\' + name + '_secret_message' + file_format, 'wb') as f:
+        with open('static\decode_output\\' + name + '_secret' + file_format, 'wb') as f:
             f.write(text)
     
     # ========================================== COVER OBJECT : IMAGE ==========================================
