@@ -128,7 +128,10 @@ class Decode(LSB):
         print('[*] Decoding... ')
         self.steg = self.get_cover_image(steg, 'steg')
         bit_pos = bits
-        self.decode_from_image(bit_pos)
+        self.file_format = self.decode_from_image(bit_pos)
+    
+    def __str__(self):
+        return str(self.file_format)
     
     # binary -> b64
     def from_base64(self, data):
@@ -178,6 +181,7 @@ def main():
     steg_image = input("Enter steg image name: ") 
     
     Decode(steg_image, bit_pos) 
+
 
 if __name__ == '__main__':
     main()

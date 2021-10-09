@@ -81,10 +81,11 @@ class Audio_Encode(LSB):
         self.encode_to_audio(secret_size, secret_info, cover_size, ori_cover_obj, bit_pos)
 
     # b64 -> binary
-    def to_base64(self, secret_info):
+    def to_base64(self, secret_info, bit_pos):
         encoded_string = base64.b64encode(self.secret)
         encoded_file_format = base64.b64encode(secret_info[1].encode('utf-8'))
         encoded_name = base64.b64encode(secret_info[2].encode('utf-8'))
+        encoded_bits = base64.b64encode(bit_pos.encode('utf-8'))
         
         criteria = '#####'.encode('utf8') # add stopping criteria
         result = encoded_string + criteria + encoded_file_format + criteria + encoded_name + criteria
@@ -118,7 +119,10 @@ class Decode(LSB):
         print('[*] Decoding... ')
         self.steg = self.get_cover_audio(steg, 'steg')[1]
         bit_pos = bits
-        self.decode_from_audio(bit_pos)
+        self.file_format = self.decode_from_audio(bit_pos)
+
+    def __str__(self):
+        return str(self.file_format)
     
     # binary -> b64
     def from_base64(self, data):
