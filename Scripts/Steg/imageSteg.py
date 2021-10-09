@@ -162,7 +162,7 @@ class Decode(LSB):
         name = self.from_base64(extracted_bin)[2].decode("utf-8")
         self.write_file(file_format, name, message)
 
-        return file_format
+        return name + file_format
 
 def main():
     
@@ -180,7 +180,7 @@ def main():
     
     steg_image = input("Enter steg image name: ") 
     
-    Decode(steg_image, bit_pos) 
+    Decode(steg_image, bit_pos)
 
 
 if __name__ == '__main__':
