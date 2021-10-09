@@ -1,6 +1,6 @@
 import numpy as np
 import base64
-import wave
+import cv2
 import os
 
 class LSB:
@@ -27,22 +27,17 @@ class LSB:
         with open('static\decode_output\\' + name + '_secret' + file_format, 'wb') as f:
             f.write(text)
     
-    # ======================================= COVER OBJECT : AUDIO (WAV) =======================================
-    def get_cover_audio(self, file, itype):
+    # ========================================== COVER OBJECT : IMAGE ==========================================
+    def get_cover_image(self, file, itype):
         try:
-            obj = wave.open(file, mode = "rb")
-            data = bytearray(list(obj.readframes(obj.getnframes()))) # convert to byte data
+            data =  cv2.imread(file)
         except IOError:
             print('[!] {} file could not be opened.'.format(itype.title()))
-        return obj, data
+        return data
     
-    def save_cover_audio(self, data, outfile, ori_cover_obj):
+    def save_cover_image(self, data, outfile):
         try:
-            new_audio = wave.open(outfile, 'wb')
-            new_audio.setparams(ori_cover_obj.getparams())
-            new_audio.writeframes(data)
-            new_audio.close()
-            ori_cover_obj.close()
+            cv2.imwrite(outfile, data)
         except IOError as e:
             raise IOError('[!] {} file could not be written.'.format(outfile) + '\n[!] {}'.format(e))
         except Exception as e:
@@ -64,11 +59,10 @@ class LSB:
     def to_utf8_bytes(self, data):
         return bytes(''.join(chr(int(x, 2)) for x in data), encoding='utf8')
         
-class Encode(LSB):
+class Img_Encode(LSB):
     def __init__(self, cover, secret, bits):
         print('[*] Encoding... ')
-        self.cover = self.get_cover_audio(cover, 'cover')[1]
-        ori_cover_obj = self.get_cover_audio(cover, 'cover')[0]
+        self.cover = self.get_cover_image(cover, 'cover')
         cover_info = self.get_object_info(cover, 'cover')
         cover_size = cover_info[0]
         self.outfile = 'static\encode_output\\' + cover_info[2] + "_copy" + cover_info[1]
@@ -78,7 +72,7 @@ class Encode(LSB):
         secret_size = secret_info[0]
 
         bit_pos = bits
-        self.encode_to_audio(secret_size, secret_info, cover_size, ori_cover_obj, bit_pos)
+        self.encode_to_image(secret_size, secret_info, cover_size, bit_pos)
 
     # b64 -> binary
     def to_base64(self, secret_info):
@@ -91,7 +85,7 @@ class Encode(LSB):
         result = ''.join(self.to_binary(result))
         return result
 
-    def encode_to_audio(self, secret_size, secret_info, cover_size, ori_cover_obj, bit_pos):
+    def encode_to_image(self, secret_size, secret_info, cover_size, bit_pos):
         data_index = 0
 
         print("[*] Maximum bytes to encode: ", cover_size)
@@ -100,25 +94,41 @@ class Encode(LSB):
 
         binary_secret_data = self.to_base64(secret_info)
         data_len = len(binary_secret_data) # size of data to hide
-
-        for i in range(len(self.cover)):
-            list_bytes = list(format(self.cover[i], '08b'))
-            for x in range(len(bit_pos)):
-                if data_index < data_len:
-                    list_bytes[bit_pos[x]] = binary_secret_data[data_index]
-                    self.cover[i] = int("".join(list_bytes), 2)
-                    data_index += 1
-                if data_index >= len(binary_secret_data):
-                    break
-
-        self.save_cover_audio(self.cover, self.outfile, ori_cover_obj)
+        for row in self.cover:
+            for pixel in row:
+                r, g, b = self.to_binary(pixel) # convert RGB values to binary format
+                list_r = list(r)
+                list_g = list(g)
+                list_b = list(b)
+                for i in range(len(bit_pos)):
+                    if data_index < data_len: # modify the least significant bit only if there is still data to store
+                        list_r[bit_pos[i]] = binary_secret_data[data_index] # least significant red pixel bit
+                        pixel[0] = int("".join(list_r), 2)
+                        data_index += 1
+                    else:
+                        break
+                for i in range(len(bit_pos)):
+                    if data_index < data_len:
+                        list_g[bit_pos[i]] = binary_secret_data[data_index] # least significant green pixel bit
+                        pixel[1] = int("".join(list_g), 2)
+                        data_index += 1
+                    else:
+                        break
+                for i in range(len(bit_pos)):
+                    if data_index < data_len: 
+                        list_b[bit_pos[i]] = binary_secret_data[data_index] # least significant blue pixel bit
+                        pixel[2] = int("".join(list_b), 2)
+                        data_index += 1
+                    else:
+                        break
+        self.save_cover_image(self.cover, self.outfile)
     
 class Decode(LSB):
     def __init__(self, steg, bits):
         print('[*] Decoding... ')
-        self.steg = self.get_cover_audio(steg, 'steg')[1]
+        self.steg = self.get_cover_image(steg, 'steg')
         bit_pos = bits
-        self.decode_from_audio(bit_pos)
+        self.decode_from_image(bit_pos)
     
     # binary -> b64
     def from_base64(self, data):
@@ -129,11 +139,17 @@ class Decode(LSB):
         name = base64.b64decode(result[2])
         return message, file_format, name
 
-    def decode_from_audio(self, bit_pos):
+    def decode_from_image(self, bit_pos):
         binary_data = ""
-        for i in range(len(self.steg)):
-            for x in range(len(bit_pos)):
-                binary_data += (format(self.steg[i], '08b')[bit_pos[x]])
+        for row in self.steg:
+            for pixel in row:
+                r, g, b = self.to_binary(pixel)
+                for i in range(len(bit_pos)):
+                    binary_data += r[bit_pos[i]]
+                for i in range(len(bit_pos)):
+                    binary_data += g[bit_pos[i]]
+                for i in range(len(bit_pos)):
+                    binary_data += b[bit_pos[i]]
         
         # split by 8 bits
         extracted_bin = [binary_data[i: i+8] for i in range(0, len(binary_data), 8)]
@@ -146,7 +162,7 @@ class Decode(LSB):
 def main():
     
     payload = input("Enter payload file: ")
-    cover_audio = input("Enter audio file: ")
+    cover_image = input("Enter image file: ")
 
     bits = int(input("Bits to replace? "))
     bit_pos = []
@@ -155,11 +171,11 @@ def main():
         bit_pos.append(bitPosInput)
     bit_pos.sort()
 
-    Encode(cover_audio, payload, bit_pos)
+    Img_Encode(cover_image, payload, bit_pos)
     
-    steg_audio = input("Enter steg audio name: ") 
+    steg_image = input("Enter steg image name: ") 
     
-    Decode(steg_audio, bit_pos) 
+    Decode(steg_image, bit_pos) 
 
 if __name__ == '__main__':
     main()

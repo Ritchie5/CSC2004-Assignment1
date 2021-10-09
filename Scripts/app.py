@@ -1,3 +1,8 @@
+from hash import hash1
+from audioSteg import Audio_Encode
+from imageSteg import Img_Encode
+import speechRecognition
+
 import os
 import shutil
 
@@ -7,10 +12,14 @@ from werkzeug.utils import redirect
 
 basedir = os.path.abspath(os.path.dirname(__file__))  # specify filepath
 
+Filepath_Cover_Object = ""
 File_Cover_Object = ""
-File_Payload = ""
 Cover_Object_Extension = ""
+
+Filepath_Payload = ""
+File_Payload = ""
 Payload_Extension = ""
+
 Charmander = "static/uploads/charmander.jpg"
 Pikachu = "static/uploads/pikachu.png"
 
@@ -49,31 +58,48 @@ def encode():
 
     if request.method == 'POST':
 
-        # try:
-            LSB = request.form['LSB']
-            print(LSB)
-            # Check File Extension & if there's a file
+        if request.form.getlist('LSB'):
+            LSB_bits = request.form.getlist('LSB')
+            LSB_bits = [int(numbers) for numbers in LSB_bits]
+
+            # Check File Extension
             ext = detect_file_type(Cover_Object_Extension)
             ext1 = detect_file_type(Payload_Extension)
+
+            # Check if Cover object and Payload is given
             if ext == "" or ext1 == "":
                 flash('Please input a file')
+                return render_template('encode.html', charmander=Charmander)
 
-                # CHECK THE FILE EXTENSION AND EXECUTE ACCORDINGLY
-            print(ext)
+            Hash1 = hash1(Filepath_Cover_Object)
+            Hash1 = "Hash: " + Hash1
+            Hash2 = hash1(Filepath_Payload)
+            Hash2 = "Hash: " + Hash2
+
+            # CHECK THE FILE EXTENSION AND EXECUTE ACCORDINGLY
             if ext == 'text':
-                return render_template('output.html', Original_Document=File_Cover_Object, Stegoed_Document=File_Cover_Object, Payload=File_Payload, charmander=Charmander)
-            if ext == 'img':
-                # file = logic(file_name)
-                # f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
-                cover_img = ""
-                return render_template('output.html', Original_Image=File_Cover_Object, Stegoed_Image=File_Cover_Object, Payload=File_Payload, charmander=Charmander)
-            elif ext == 'video':
-                return render_template('output.html', Original_Video=File_Cover_Object, Stegoed_Video=File_Cover_Object, Payload=File_Payload, charmander=Charmander)
-            elif ext == 'audio':
-                return render_template('output.html', Original_Audio=File_Cover_Object, Stegoed_Audio=File_Cover_Object, Payload=File_Payload, charmander=Charmander)
+                return render_template('output.html', Original_Document=File_Cover_Object,
+                                       Stegoed_Document=File_Cover_Object, charmander=Charmander, Hash1=Hash1, Hash2=Hash2)
 
-        # except:
-        #    flash("Please input everything in the form")
+            if ext == 'img':
+                Img_Encode(Filepath_Cover_Object, Filepath_Payload, LSB_bits)
+                Stego_Image = output_filename(File_Cover_Object, "Encode")
+                return render_template('output.html', Original_Image=File_Cover_Object, Stegoed_Image=Stego_Image,
+                                       charmander=Charmander, Hash1=Hash1, Hash2=Hash2)
+
+            elif ext == 'audio':
+                Audio_Encode(Filepath_Cover_Object, Filepath_Payload, LSB_bits)
+                Stego_Audio = output_filename(File_Cover_Object, "Encode")
+                return render_template('output.html', Original_Audio=File_Cover_Object, Stegoed_Audio=File_Cover_Object,
+                                       charmander=Charmander, Hash1=Hash1, Hash2=Hash2)
+            elif ext == 'video':
+                return render_template('output.html', Original_Video=File_Cover_Object, Stegoed_Video=File_Cover_Object,
+                                       charmander=Charmander, Hash1=Hash1, Hash2=Hash2)
+
+
+
+        else:
+            flash("Please input everything in the form")
 
     return render_template('encode.html', charmander=Charmander)
 
@@ -85,29 +111,32 @@ def decode():
 
     if request.method == 'POST':
 
-        try:
-            LSB = request.form['LSB']
-            print(LSB)
+        if request.form.getlist('LSB'):
+            LSB = request.form.getlist('LSB')
+            LSB = [int(numbers) for numbers in LSB]
             # Check File Extension & if there's a file
             ext = detect_file_type(Cover_Object_Extension)
             ext1 = detect_file_type(Payload_Extension)
-            if ext == "" or ext1 == "":
-                flash('Please input a file')
+            flash('Please input a file')
 
-                # CHECK THE FILE EXTENSION AND EXECUTE ACCORDINGLY
+            # CHECK THE FILE EXTENSION AND EXECUTE ACCORDINGLY
 
             if ext == 'text':
-                return render_template('output.html', Original_Document=File_Cover_Object, Stegoed_Document=File_Cover_Object, Payload=File_Payload, charmander=Charmander)
+                return render_template('output.html', Original_Document=File_Cover_Object,
+                                       Stegoed_Document=File_Cover_Object, Payload=File_Payload, charmander=Charmander)
             if ext == 'img':
                 # file = logic(file_name)
                 # f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
-                return render_template('output.html', Original_Image=File_Cover_Object, Stegoed_Image=File_Cover_Object, Payload=File_Payload, charmander=Charmander)
-            elif ext == 'video':
-                return render_template('output.html', Original_Video=File_Cover_Object, Stegoed_Video=File_Cover_Object, Payload=File_Payload, charmander=Charmander)
-            elif ext == 'audio':
-                return render_template('output.html', Original_Audio=File_Cover_Object, Stegoed_Audio=File_Cover_Object, Payload=File_Payload, charmander=Charmander)
 
-        except:
+                return render_template('output.html', Original_Image=File_Cover_Object, Stegoed_Image=File_Cover_Object,
+                                       Payload=File_Payload, charmander=Charmander)
+            elif ext == 'video':
+                return render_template('output.html', Original_Video=File_Cover_Object, Stegoed_Video=File_Cover_Object,
+                                       Payload=File_Payload, charmander=Charmander)
+            elif ext == 'audio':
+                return render_template('output.html', Original_Audio=File_Cover_Object, Stegoed_Audio=File_Cover_Object,
+                                       Payload=File_Payload, charmander=Charmander)
+        else:
             flash("Please input everything in the form")
 
     return render_template('decode.html', charmander=Pikachu)
@@ -117,6 +146,7 @@ def decode():
 def first_upload():
     global File_Cover_Object
     global Cover_Object_Extension
+    global Filepath_Cover_Object
 
     if request.method == 'POST':
 
@@ -126,8 +156,9 @@ def first_upload():
 
             print(os.path.join(app.config['UPLOADED_PATH']))
             f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
-            Cover_Object_Extension = f.filename.split('.')[1]
+            Filepath_Cover_Object = os.path.join(app.config['UPLOADED_PATH'], f.filename)
             File_Cover_Object = f.filename
+            Cover_Object_Extension = f.filename.split('.')[1]
             print(File_Cover_Object)
         return File_Cover_Object
 
@@ -136,6 +167,7 @@ def first_upload():
 def second_upload():
     global File_Payload
     global Payload_Extension
+    global Filepath_Payload
 
     if request.method == 'POST':
 
@@ -143,16 +175,38 @@ def second_upload():
         if request.files.get('file'):
             f = request.files.get('file')
             f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
-            Payload_Extension = f.filename.split('.')[1]
+            Filepath_Payload = os.path.join(app.config['UPLOADED_PATH'], f.filename)
             File_Payload = f.filename
+            Payload_Extension = f.filename.split('.')[1]
             print(File_Payload)
         return File_Payload
 
 
 @app.route('/display/<filename>')
 def display(filename):
-    # print('display_image filename: ' + filename)
+    print('display_image filename: ' + filename)
+    if "copy" in filename:
+        return redirect(url_for('static', filename='encode_output/' + filename), code=301)
+    if "secret" in filename:
+        return redirect(url_for('static', filename='decode_output/' + filename), code=301)
+
+    else:
+        return redirect(url_for('static', filename='uploads/' + filename), code=301)
+
+
+def display(filename):
+    print('display_image filename: ' + filename)
+
     return redirect(url_for('static', filename='uploads/' + filename), code=301)
+
+
+def output_filename(filename, output):
+    filename = filename.split(".")
+    if output == "Encode":
+        filename = filename[0] + "_copy." + filename[1]
+    else:
+        filename = filename[0] + "_secret_message." + filename[1]
+    return filename
 
 
 def detect_file_type(ext):

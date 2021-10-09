@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Stenography Demo</title>
+    <title>Steganography Demo</title>
 
     <!-- CSS only -->
     <link
@@ -21,8 +21,7 @@
     </div>
 
 
-<!-- Image Display -->
-
+<!-- ORIGINAL FILE -->
     {% if Original_Image %}    
     <h2 class="text-center">Original Img</h2>
     <div class="d-flex justify-content-center">
@@ -31,79 +30,78 @@
           style="width: auto; height: 30vh"
         />
       </div>
+    <p class="text-center" style="margin-top: 2vh;">{{ Hash1 }}</p>    
     {% endif %}
 
-
-      {% if Stegoed_Image %}
-      <h2 class="text-center">Covered Img</h2>
-      <div class="d-flex justify-content-center">
-      <img
-          src="{{ url_for('display', filename=Stegoed_Image) }}"
-          style="width: auto; height: 30vh"
-        />
-          </div>
-      {% endif %}
-
-
-<!-- Video Display -->
-
-      {% if Original_Video %}    
-      <h2 class="text-center">Original Video</h2>
-      <div class="d-flex justify-content-center">
-          <video controls="controls" preload="preload" width="auto" height="240">
-            <source src="{{ url_for('display', filename=Original_Video) }}" type="video/mp4"></source>
-          </video>
-          <h1>{{filename}}</h1>
-        </div>
-          {% endif %}
-
-      {% if Stegoed_Video %}    
-      <h2 class="text-center">Covered Video</h2>
-      <div class="d-flex justify-content-center">
-          <video controls="controls" preload="preload" width="auto" height="240">
-            <source src="{{ url_for('display', filename=Stegoed_Video) }}" type="video/mp4"></source>
-          </video>
-        </div>
-      {% endif %}
-
-
-<!-- Audio Display -->
+    {% if Original_Video %}    
+    <h2 class="text-center">Original Video</h2>
+    <div class="d-flex justify-content-center">
+      <video controls="controls" preload="preload" width="auto" height="240">
+        <source src="{{ url_for('display', filename=Original_Video) }}" type="video/mp4"></source>
+      </video>
+    </div>
+    <p class="text-center" style="margin-top: 2vh;">{{ Hash1 }}</p>    
+    {% endif %}
 
     {% if Original_Audio %}    
     <h2 class="text-center">Original Audio</h2>
     <div class="d-flex justify-content-center">
-          <audio controls>
-            <source src="{{ url_for('display', filename=Original_Audio) }}" type="audio/mpeg"></source>
-          </audio>
-    </div>
-    {% endif %}
-
-    {% if Stegoed_Audio %}    
-    <h2 class="text-center">Covered Audio</h2>
-    <div class="d-flex justify-content-center">          
       <audio controls>
-            <source src="{{ url_for('display', filename=Stegoed_Audio) }}" type="audio/mpeg"></source>
-          </audio>
+        <source src="{{ url_for('display', filename=Original_Audio) }}" type="audio/mpeg"></source>
+      </audio>
     </div>
+    <p class="text-center" style="margin-top: 2vh;">{{ Hash1 }}</p>    
     {% endif %}
 
-
-<!--Document Display-->
     {% if Original_Document %}    
     <h2 class="text-center">Original Document</h2>
     <div class="d-flex justify-content-center">
       <iframe src="{{ url_for('display', filename=Original_Document) }}" frameborder="0" style="border: 1px solid black;" height="500px" width="70%"></iframe>
     </div>
+    <p class="text-center" style="margin-top: 2vh;">{{ Hash1 }}</p>    
     {% endif %}
 
+<!-- STEGOED FILE-->
+    {% if Stegoed_Image %}
+    <h2 class="text-center">Covered Img</h2>
+    <div class="d-flex justify-content-center">
+    <img
+        src="{{ url_for('display', filename=Stegoed_Image) }}"
+        style="width: auto; height: 30vh"
+    />
+    </div>
+    <p class="text-center" style="margin-top: 2vh;">{{ Hash2 }}</p>    
+    {% endif %}
+
+    {% if Stegoed_Video %}    
+    <h2 class="text-center">Covered Video</h2>
+    <div class="d-flex justify-content-center">
+      <video controls="controls" preload="preload" width="auto" height="240">
+        <source src="{{ url_for('display', filename=Stegoed_Video) }}" type="video/mp4"></source>
+      </video>
+    </div>
+    <p class="text-center" style="margin-top: 2vh;">{{ Hash2 }}</p>    
+    {% endif %}
+
+    {% if Stegoed_Audio %}    
+    <div style="margin-top: 10vh;"></div>
+    <h2 class="text-center">Covered Audio</h2>
+    <div class="d-flex justify-content-center">          
+      <audio controls>
+        <source src="{{ url_for('display', filename=Stegoed_Audio) }}" type="audio/mpeg"></source>
+      </audio>
+    </div>
+    <p class="text-center" style="margin-top: 2vh;">{{ Hash2 }}</p>    
+    <div style="min-height: 23vh;"></div>
+    {% endif %}
+    
     {% if Stegoed_Document %}    
     <h2 class="text-center" style="margin-top: 2vh;">Covered Document</h2>
     <div class="d-flex justify-content-center">
       <iframe src="{{ url_for('display', filename=Stegoed_Document) }}" frameborder="0" style="border: 1px solid black;" height="500px" width="70%"></iframe>
     </div>
-
+    <p class="text-center" style="margin-top: 2vh;">{{ Hash2 }}</p>    
     {% endif %}
-
 
 <!--Payload Display-->
 
