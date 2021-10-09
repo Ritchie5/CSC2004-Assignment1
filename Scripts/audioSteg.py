@@ -89,11 +89,6 @@ class Audio_Encode(LSB):
         encoded_name = base64.b64encode(secret_info[2].encode('utf-8'))
         encoded_bits = base64.b64encode(bit_pos.encode('utf-8'))
 
-        criteria = '#####'.encode('utf8')  # add stopping criteria
-        result = encoded_string + criteria + encoded_file_format + criteria + encoded_name + criteria
-        result = ''.join(self.to_binary(result))
-        return result
-
     def encode_to_audio(self, secret_size, secret_info, cover_size, ori_cover_obj, bit_pos):
         data_index = 0
 
@@ -151,7 +146,6 @@ class Decode(LSB):
         self.write_file(file_format, name, message)
 
         return name + file_format
-
 
 def main():
     payload = input("Enter payload file: ")
