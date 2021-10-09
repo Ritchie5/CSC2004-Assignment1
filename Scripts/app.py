@@ -1,17 +1,16 @@
-from hash import hash1
-from audioSteg import Audio_Encode
-from imageSteg import Img_Encode
-import speechRecognition
-
-import os
-import shutil
-
+# Import for GUI
 from flask import Flask, flash, render_template, request, url_for  # import flask class and relevant libraries
 from flask_dropzone import Dropzone  # import flask dropzone
 from werkzeug.utils import redirect
+import os
 
-basedir = os.path.abspath(os.path.dirname(__file__))  # specify filepath
+# Import from Group mates
+from hash import hash1
+from audioSteg import Audio_Encode, Audio_Decode
+from imageSteg import Img_Encode, Img_Decode
+from speechRecognition import audio_to_text
 
+# Global variables
 Filepath_Cover_Object = ""
 File_Cover_Object = ""
 Cover_Object_Extension = ""
@@ -23,12 +22,13 @@ Payload_Extension = ""
 Charmander = "static/uploads/charmander.jpg"
 Pikachu = "static/uploads/pikachu.png"
 
+# Configure FLASK
 app = Flask(__name__)  # create an instance and initialise the flask
 app.secret_key = "Charmander"
 
 # configure the setting of the uploaded item
 app.config.update(
-    UPLOADED_PATH='static/uploads',  # storing of uploaded item into specified filepath
+    UPLOADED_PATH='static\\uploads',  # storing of uploaded item into specified filepath
     # Flask-Dropzone config:
     DROPZONE_MAX_FILE_SIZE=1024,  # set max size limit to a large number, here is 1024 MB
     DROPZONE_TIMEOUT=5 * 60 * 1000  # set upload timeout to a large number, here is 5 minutes
@@ -37,12 +37,11 @@ app.config.update(
 dropzone = Dropzone(app)
 
 app.config['DROPZONE_MAX_FILES'] = 1  # Set Max amount of file user can input to 1
-app.config['DROPZONE_MAX_FILE_SIZE'] = 10  # Set Max allowed file size to 2mb
-app.config['DROPZONE_DEFAULT_MESSAGE'] = "Drop / Click to Upload File"
+app.config['DROPZONE_MAX_FILE_SIZE'] = 100  # Set Max allowed file size to 100mb
+app.config['DROPZONE_DEFAULT_MESSAGE'] = "Drop / Click to Upload File"  # Set default message in box
 
 
-# Set default message in box
-
+# FLASK Routes
 @app.route('/')  # provide Flask an URL on which function to be triggered (root)
 def home():
     # indicate which html file to render
@@ -53,6 +52,7 @@ def home():
 def encode():
     global File_Cover_Object
     global Cover_Object_Extension
+    global Filepath_Cover_Object
     global File_Payload
     global Payload_Extension
 
@@ -67,11 +67,12 @@ def encode():
             ext = detect_file_type(Cover_Object_Extension)
             ext1 = detect_file_type(Payload_Extension)
 
-            # Check if Cover object and Payload is given
-            if ext == "" or ext1 == "":
-                flash('Please input a file')
+            # Error checking for correct file format
+            if ext == "" or ext1 == "" or ext == "video" or ext == "text":
+                flash('Please input correct file format')
                 return render_template('encode.html', charmander=Charmander)
 
+            # Error checking if payload file size is too big
             Cover_object_size = os.path.getsize(Filepath_Cover_Object)
             Payload_size = os.path.getsize(Filepath_Payload)
             if Cover_object_size < Payload_size:
@@ -83,7 +84,9 @@ def encode():
             Hash2 = hash1(Filepath_Payload)
             Hash2 = "Hash: " + Hash2
 
-            # CHECK THE FILE EXTENSION AND EXECUTE ACCORDINGLY if ext == 'text': return render_template(
+            # CHECK THE FILE EXTENSION AND EXECUTE ACCORDINGLY
+            # if ext == 'text':
+            #  return render_template(
             # 'output.html', Original_Document=File_Cover_Object, Stegoed_Document=File_Cover_Object,
             # charmander=Charmander, Hash1=Hash1, Hash2=Hash2)
 
@@ -94,11 +97,16 @@ def encode():
                                        charmander=Charmander, Hash1=Hash1, Hash2=Hash2)
 
             elif ext == 'audio':
+                if speech_recognition == 'Yes' or ext1 == "audio":
+                    print(Filepath_Cover_Object)
+                    temp = audio_to_text(Filepath_Cover_Object)
+                    print(temp)
+
                 Audio_Encode(Filepath_Cover_Object, Filepath_Payload, LSB_bits)
                 Stego_Audio = output_filename(File_Cover_Object, "Encode")
                 return render_template('output.html', Original_Audio=File_Cover_Object, Stegoed_Audio=File_Cover_Object,
                                        charmander=Charmander, Hash1=Hash1, Hash2=Hash2)
-            
+
             # elif ext == 'video':
             #    return render_template('output.html', Original_Video=File_Cover_Object, Stegoed_Video=File_Cover_Object,
             #                           charmander=Charmander, Hash1=Hash1, Hash2=Hash2)
@@ -121,26 +129,36 @@ def decode():
             LSB = [int(numbers) for numbers in LSB]
             # Check File Extension & if there's a file
             ext = detect_file_type(Cover_Object_Extension)
-            ext1 = detect_file_type(Payload_Extension)
-            flash('Please input a file')
+            if ext == "":
+                flash('Please input a file')
+                return render_template('encode.html', charmander=Charmander)
 
-            # CHECK THE FILE EXTENSION AND EXECUTE ACCORDINGLY
-
-            if ext == 'text':
-                return render_template('output.html', Original_Document=File_Cover_Object,
-                                       Stegoed_Document=File_Cover_Object, Payload=File_Payload, charmander=Charmander)
+            # Get Secret
             if ext == 'img':
-                # file = logic(file_name)
-                # f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
+                print("IMG decoding")
+                Decode_class = Img_Decode(Filepath_Cover_Object, LSB)
 
-                return render_template('output.html', Original_Image=File_Cover_Object, Stegoed_Image=File_Cover_Object,
-                                       Payload=File_Payload, charmander=Charmander)
-            elif ext == 'video':
-                return render_template('output.html', Original_Video=File_Cover_Object, Stegoed_Video=File_Cover_Object,
-                                       Payload=File_Payload, charmander=Charmander)
             elif ext == 'audio':
-                return render_template('output.html', Original_Audio=File_Cover_Object, Stegoed_Audio=File_Cover_Object,
-                                       Payload=File_Payload, charmander=Charmander)
+                Decode_class = Audio_Decode(Filepath_Cover_Object, LSB)
+
+            filepath = Decode_class.filepath
+            temp = filepath
+            print(filepath)
+            Stego_Object = output_filename(File_Cover_Object, "Decode")
+            Stego_Object = Stego_Object.split(".")[0] + filepath
+            ext = detect_file_type(filepath)
+            print(Stego_Object)
+
+            # Displaying Secret
+            if ext == 'txt':
+                return render_template('output.html', Orginal_text=Stego_Object, charmander=Pikachu)
+            if ext == 'img':
+                return render_template('output.html', Orginal_Image=Stego_Object, charmander=Pikachu)
+            if ext == 'audio':
+                return render_template('output.html', Orginal_Audio=Stego_Object, charmander=Pikachu)
+            if ext == 'video':
+                return render_template('output.html', Orginal_Video=Stego_Object, charmander=Pikachu)
+
         else:
             flash("Please input everything in the form")
 
@@ -207,7 +225,7 @@ def output_filename(filename, output):
     if output == "Encode":
         filename = filename[0] + "_copy." + filename[1]
     else:
-        filename = filename[0] + "_secret_message." + filename[1]
+        filename = filename[0] + "_secret." + filename[1]
     return filename
 
 

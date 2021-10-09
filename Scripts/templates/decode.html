@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename = 'css/styles.css') }}">
 
   {{ dropzone.load_css() }}
-  {{ dropzone.style('border: 2px Solid Grey; margin: auto; height: 35vh ; width: 50vh; border-radius: 25px; background-color: lightgray;') }}
+  {{ dropzone.style('border: 2px Solid Grey; margin: auto; height: 50vh ; width: 70vh; border-radius: 25px; background-color: lightgray;') }}
 </head>
 
 <body>
@@ -46,8 +46,8 @@
   {{ dropzone.load_js() }}
   {{ dropzone.config() }}
 
-  <div class="d-flex justify-content-center" style="margin-top: 2vh; margin-bottom: 2vh; margin-left: 10vw;">
-      <form action="/encode" method="post">
+  <div class="d-flex justify-content-center" style="margin-top: 2vh; margin-bottom: 2vh; margin-left: 0vw;">
+      <form action="/decode" method="post">
             <h2>Bit to replace:</h2>
             <p>
               <input type="checkbox" id="LSB0" name="LSB" value="0">
@@ -67,10 +67,6 @@
               <input type="checkbox" id="LSB7" name="LSB" value="7">
               <label for="LSB6">7 &nbsp</label>         
             </p>
-              <h2>File Extension:</h2>
-              <p style="margin-top: -1vh;">Please provide the extension of the secret File</p>
-              <input style="margin-top: -1.5vh; margin-bottom: 2vh;" type="text" name="Filetype" placeholder="jpg">   
-        <p>
             <input class="btn btn-outline-dark" type="submit">
         </p>
       </form>
@@ -79,7 +75,7 @@
   <div class="bg-dark" style="height: 10vh;">
     <img
       src="{{ charmander }}"
-      style="margin-left: 85vw; margin-top: -17vh; width: auto; height: 12vh"
+      style="margin-left: 85vw; margin-top: -20vh; width: auto; height: 12vh"
       />
   </div>
 

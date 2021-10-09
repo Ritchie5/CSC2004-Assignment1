@@ -14,7 +14,7 @@ def audio_to_text(audioFile):
         # recognize (convert from speech to text)
         text = r.recognize_google(audio_data)
 
-    with open('Scripts\\static\speechRecog\\' + name + '_speech_text.txt', 'w') as f:
+    with open('static\speechRecog\\' + name + '_speech_text.txt', 'w') as f:
         f.write(text)
     
-    return 'Scripts\\static\speechRecog\\' + name + '_speech_text.txt'
+    return 'static\speechRecog\\' + name + '_speech_text.txt'

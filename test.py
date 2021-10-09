@@ -16,7 +16,7 @@ def ConvertToBin(input):  # convert data to binary function
             "Input type not supported, please provide data in String, Bytes or Integer format")
 
 def encode(bitPos=[5,7]):
-    audio = wave.open("Audio\\okay-come-on.wav",mode="rb")
+    audio = wave.open("Scripts/static/uploads/okay-come-on.wav", mode="rb")
     frame_bytes = bytearray(list(audio.readframes(audio.getnframes()))) #convert to byte data
     #print("OG:")
     #for i in range(0,8):
