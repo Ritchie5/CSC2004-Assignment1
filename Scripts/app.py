@@ -79,7 +79,7 @@ def encode():
                 flash('Payload too large for selected cover object')
                 return render_template('encode.html', charmander=Charmander)
 
-            if (Cover_object_size/8)*len(LSB_bits) < Payload_size:
+            if (Cover_object_size / 8) * len(LSB_bits) < Payload_size:
                 flash('Payload too large, please add more bit for replacement')
                 return render_template('encode.html', charmander=Charmander)
 
@@ -98,16 +98,23 @@ def encode():
                 Img_Encode(Filepath_Cover_Object, Filepath_Payload, LSB_bits)
                 Stego_Image = output_filename(File_Cover_Object, "Encode")
                 return render_template('output.html', Original_Image=File_Cover_Object, Stegoed_Image=Stego_Image,
-                                       charmander=Charmander, Hash1=Hash1, Hash2=Hash2, Original_Message="Original Image", Stegoed_Message = "Stego Image")
+                                       charmander=Charmander, Hash1=Hash1, Hash2=Hash2,
+                                       Original_Message="Original Image", Stegoed_Message="Stego Image")
 
             elif ext == 'audio':
                 if speech_recognition == 'Yes':
-                    Filepath_Cover_Object = audio_to_text(Filepath_Cover_Object)
+                    try:
+                        Filepath_Cover_Object = audio_to_text(Filepath_Cover_Object)
+
+                    except:
+                        flash('Speech Recognition failed, File might not have speech')
+                        return render_template('encode.html', charmander=Charmander)
 
                 Audio_Encode(Filepath_Cover_Object, Filepath_Payload, LSB_bits)
                 Stego_Audio = output_filename(File_Cover_Object, "Encode")
                 return render_template('output.html', Original_Audio=File_Cover_Object, Stegoed_Audio=File_Cover_Object,
-                                       charmander=Charmander, Hash1=Hash1, Hash2=Hash2, Original_Message="Original Audio", Stegoed_Message="Stego Audio")
+                                       charmander=Charmander, Hash1=Hash1, Hash2=Hash2,
+                                       Original_Message="Original Audio", Stegoed_Message="Stego Audio")
 
             # elif ext == 'video':
             #    return render_template('output.html', Original_Video=File_Cover_Object, Stegoed_Video=File_Cover_Object,
@@ -151,13 +158,17 @@ def decode():
 
             # Displaying Secret
             if ext == 'txt':
-                return render_template('output.html', Original_Document=Decode_file, charmander=Pikachu, twenty=1, Original_Message="Hidden Text")
+                return render_template('output.html', Original_Document=Decode_file, charmander=Pikachu, twenty=1,
+                                       Original_Message="Hidden Text")
             if ext == 'img':
-                return render_template('output.html', Original_Image=Decode_file, charmander=Pikachu, forty=1, Original_Message="Hidden Image")
+                return render_template('output.html', Original_Image=Decode_file, charmander=Pikachu, forty=1,
+                                       Original_Message="Hidden Image")
             if ext == 'audio':
-                return render_template('output.html', Original_Audio=Decode_file, charmander=Pikachu, sixty=1, Original_Message="Hidden Audio")
+                return render_template('output.html', Original_Audio=Decode_file, charmander=Pikachu, sixty=1,
+                                       Original_Message="Hidden Audio")
             if ext == 'video':
-                return render_template('output.html', Original_Video=Decode_file, charmander=Pikachu, twenty=1, Original_Message="Hidden Video")
+                return render_template('output.html', Original_Video=Decode_file, charmander=Pikachu, twenty=1,
+                                       Original_Message="Hidden Video")
 
         else:
             flash("Please input everything in the form")
