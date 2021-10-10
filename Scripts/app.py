@@ -98,18 +98,16 @@ def encode():
                 Img_Encode(Filepath_Cover_Object, Filepath_Payload, LSB_bits)
                 Stego_Image = output_filename(File_Cover_Object, "Encode")
                 return render_template('output.html', Original_Image=File_Cover_Object, Stegoed_Image=Stego_Image,
-                                       charmander=Charmander, Hash1=Hash1, Hash2=Hash2)
+                                       charmander=Charmander, Hash1=Hash1, Hash2=Hash2, Original_Message="Original Image", Stegoed_Message = "Stego Image")
 
             elif ext == 'audio':
-                if speech_recognition == 'Yes' or ext1 == "audio":
-                    print(Filepath_Cover_Object)
-                    temp = audio_to_text(Filepath_Cover_Object)
-                    print(temp)
+                if speech_recognition == 'Yes':
+                    Filepath_Cover_Object = audio_to_text(Filepath_Cover_Object)
 
                 Audio_Encode(Filepath_Cover_Object, Filepath_Payload, LSB_bits)
                 Stego_Audio = output_filename(File_Cover_Object, "Encode")
                 return render_template('output.html', Original_Audio=File_Cover_Object, Stegoed_Audio=File_Cover_Object,
-                                       charmander=Charmander, Hash1=Hash1, Hash2=Hash2)
+                                       charmander=Charmander, Hash1=Hash1, Hash2=Hash2, Original_Message="Original Audio", Stegoed_Message="Stego Audio")
 
             # elif ext == 'video':
             #    return render_template('output.html', Original_Video=File_Cover_Object, Stegoed_Video=File_Cover_Object,
@@ -140,24 +138,26 @@ def decode():
             # Get Secret
             if ext == 'img':
                 print("IMG decoding")
+                print(File_Cover_Object, LSB)
                 Decode_file = Img_Decode(Filepath_Cover_Object, LSB)
 
             elif ext == 'audio':
                 Decode_file = Audio_Decode(Filepath_Cover_Object, LSB)
 
-            print(Decode_file)
+            Decode_file = str(Decode_file)
             temp = Decode_file
-            # ext = temp.split(".")[1]
+            temp = temp.split(".")[1]
+            ext = detect_file_type(temp)
 
             # Displaying Secret
             if ext == 'txt':
-                return render_template('output.html', Original_Document=Decode_file, charmander=Pikachu, twenty=1)
+                return render_template('output.html', Original_Document=Decode_file, charmander=Pikachu, twenty=1, Original_Message="Hidden Text")
             if ext == 'img':
-                return render_template('output.html', Original_Image=Decode_file, charmander=Pikachu, forty=1)
+                return render_template('output.html', Original_Image=Decode_file, charmander=Pikachu, forty=1, Original_Message="Hidden Image")
             if ext == 'audio':
-                return render_template('output.html', Original_Audio=Decode_file, charmander=Pikachu, sixty=1)
+                return render_template('output.html', Original_Audio=Decode_file, charmander=Pikachu, sixty=1, Original_Message="Hidden Audio")
             if ext == 'video':
-                return render_template('output.html', Original_Video=Decode_file, charmander=Pikachu, twenty=1)
+                return render_template('output.html', Original_Video=Decode_file, charmander=Pikachu, twenty=1, Original_Message="Hidden Video")
 
         else:
             flash("Please input everything in the form")
@@ -165,6 +165,7 @@ def decode():
     return render_template('decode.html', charmander=Pikachu)
 
 
+# First Dropzone action route
 @app.route('/first_upload', methods=['Post'])
 def first_upload():
     global File_Cover_Object
@@ -173,16 +174,28 @@ def first_upload():
 
     if request.method == 'POST':
 
-        # CHECK IF THE FILE AND FORM IS SUBMITTED
+        # SAVE FILE THAT IS SUBMITTED
         if request.files.get('file'):
+            # GET File
             f = request.files.get('file')
-            f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
+
+            # File Info
             Filepath_Cover_Object = os.path.join(app.config['UPLOADED_PATH'], f.filename)
             File_Cover_Object = f.filename
             Cover_Object_Extension = f.filename.split('.')[1]
+
+            # Check for correct input
+            temp = detect_file_type(Cover_Object_Extension)
+            if temp == "" or temp == "text" or temp == "video":
+                flash("Cover object is an Incorrect File Type ")
+                return render_template('encode.html', charmander=Charmander)
+
+            # Save File
+            f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
         return File_Cover_Object
 
 
+# Second Dropzone action route
 @app.route('/second_upload', methods=['Post'])
 def second_upload():
     global File_Payload
@@ -191,17 +204,62 @@ def second_upload():
 
     if request.method == 'POST':
 
-        # CHECK IF THE FILE AND FORM IS SUBMITTED
+        # SAVE FILE THAT IS SUBMITTED
         if request.files.get('file'):
+            # GET File
             f = request.files.get('file')
-            f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
-            Filepath_Payload = os.path.join(app.config['UPLOADED_PATH'], f.filename)
+
+            # File Info
+            Filepath_Payload = os.path.join(
+                app.config['UPLOADED_PATH'], f.filename)
             File_Payload = f.filename
             Payload_Extension = f.filename.split('.')[1]
-            print(File_Payload)
-        return File_Payload
+
+            # Check for correct input
+            temp = detect_file_type(Payload_Extension)
+            if temp == "":
+                flash("Payload is an Incorrect File Type ")
+                return render_template('encode.html', charmander=Charmander)
+
+            # Save File
+            f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
+        return File_Cover_Object
 
 
+# Third Dropzone action route
+@app.route('/third_upload', methods=['Post'])
+def third_upload():
+    global File_Cover_Object
+    global Cover_Object_Extension
+    global Filepath_Cover_Object
+
+    if request.method == 'POST':
+        print("something1")
+        # SAVE FILE THAT IS SUBMITTED
+        if request.files.get('file'):
+            # GET File
+            f = request.files.get('file')
+
+            # File Info
+            Filepath_Cover_Object = os.path.join(
+                app.config['UPLOADED_PATH'], f.filename)
+            File_Cover_Object = f.filename
+            Cover_Object_Extension = f.filename.split('.')[1]
+            print("Something happened")
+            print(Filepath_Cover_Object)
+
+            # Check for correct input
+            temp = detect_file_type(Cover_Object_Extension)
+            if temp == "" or temp == "text" or temp == "video":
+                flash("Cover object is an Incorrect File Type ")
+                return render_template('decode.html', charmander=Pikachu)
+
+            # Save File
+            f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
+        return File_Cover_Object
+
+
+# Display File
 @app.route('/display/<filename>')
 def display(filename):
     print('display_image filename: ' + filename)
@@ -214,6 +272,7 @@ def display(filename):
         return redirect(url_for('static', filename='uploads/' + filename), code=301)
 
 
+# Check Output Filename
 def output_filename(filename, output):
     filename = filename.split(".")
     if output == "Encode":

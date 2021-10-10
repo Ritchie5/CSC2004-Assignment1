@@ -21,9 +21,13 @@
     </div>
 
 
+<!-- Message to be displayed-->
+    {% if Original_Message %}
+    <h2 class="text-center">{{ Original_Message }}</h2>
+    {% endif %}
+
 <!-- ORIGINAL FILE -->
     {% if Original_Image %}    
-    <h2 class="text-center">Original Img</h2>
     <div class="d-flex justify-content-center">
         <img
           src="{{ url_for('display', filename=Original_Image) }}"
@@ -34,7 +38,6 @@
     {% endif %}
 
     {% if Original_Video %}
-    <h2 class="text-center">Original Video</h2>
     <div class="d-flex justify-content-center">
       <video controls="controls" preload="preload" width="auto" height="240">
         <source src="{{ url_for('display', filename=Original_Video) }}" type="video/mp4"></source>
@@ -44,7 +47,6 @@
     {% endif %}
 
     {% if Original_Audio %}    
-    <h2 class="text-center">Original Audio</h2>
     <div class="d-flex justify-content-center">
       <audio controls>
         <source src="{{ url_for('display', filename=Original_Audio) }}" type="audio/mpeg"></source>
@@ -54,7 +56,6 @@
     {% endif %}
 
     {% if Original_Document %}    
-    <h2 class="text-center">Original Document</h2>
     <div class="d-flex justify-content-center">
       <iframe src="{{ url_for('display', filename=Original_Document) }}" frameborder="0" style="border: 1px solid black;" height="500px" width="70%"></iframe>
     </div>
@@ -62,8 +63,11 @@
     {% endif %}
 
 <!-- STEGOED FILE-->
+    {% if Stegoed_Message %}
+    <h2 class="text-center">{{ Stegoed_Message }}</h2>
+    {% endif %}
+
     {% if Stegoed_Image %}
-    <h2 class="text-center">Covered Img</h2>
     <div class="d-flex justify-content-center">
     <img
         src="{{ url_for('display', filename=Stegoed_Image) }}"
@@ -74,7 +78,6 @@
     {% endif %}
 
     {% if Stegoed_Video %}    
-    <h2 class="text-center">Covered Video</h2>
     <div class="d-flex justify-content-center">
       <video controls="controls" preload="preload" width="auto" height="240">
         <source src="{{ url_for('display', filename=Stegoed_Video) }}" type="video/mp4"></source>
@@ -85,7 +88,6 @@
 
     {% if Stegoed_Audio %}    
     <div style="margin-top: 10vh;"></div>
-    <h2 class="text-center">Covered Audio</h2>
     <div class="d-flex justify-content-center">          
       <audio controls>
         <source src="{{ url_for('display', filename=Stegoed_Audio) }}" type="audio/mpeg"></source>
@@ -96,7 +98,6 @@
     {% endif %}
     
     {% if Stegoed_Document %}    
-    <h2 class="text-center" style="margin-top: 2vh;">Covered Document</h2>
     <div class="d-flex justify-content-center">
       <iframe src="{{ url_for('display', filename=Stegoed_Document) }}" frameborder="0" style="border: 1px solid black;" height="500px" width="70%"></iframe>
     </div>
@@ -104,19 +105,6 @@
     {% endif %}
 
 <!--Payload Display-->
-    {% if twenty %}
-    <div style="height: 20vh;"></div>
-    {% endif %}
-
-    {% if forty %}
-    <div style="height: 40vh;"></div>
-    {% endif %}
-    
-    {% if sixty %}
-    <div style="height: 60vh;"></div>
-    {% endif %}
-
-
     {% if Payload %}    
     <h2 class="text-center" style="margin-top: 2vh;">Payload</h2>
     <div class="d-flex justify-content-center">
@@ -125,6 +113,20 @@
 
     {% endif %}
 
+<!--Extra spacing if required-->
+    {% if twenty %}
+    <div style="height: 20vh;"></div>
+    {% endif %}
+
+    {% if forty %}
+    <div style="height: 40vh;"></div>
+    {% endif %}
+
+    {% if sixty %}
+    <div style="height: 60vh;"></div>
+    {% endif %}
+
+<!--Bottom bar-->
   <div class="bg-dark" style="height: 10vh;">
           <img
           src="{{ charmander }}"
