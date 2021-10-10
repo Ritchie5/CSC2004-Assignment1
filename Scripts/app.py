@@ -102,13 +102,15 @@ def encode():
                                        Original_Message="Original Image", Stegoed_Message="Stego Image")
 
             elif ext == 'audio':
-                if speech_recognition == 'Yes':
+                if speech_recognition == 'Yes' and ext1 == "wav":
                     try:
                         Filepath_Cover_Object = audio_to_text(Filepath_Cover_Object)
-
                     except:
                         flash('Speech Recognition failed, File might not have speech')
                         return render_template('encode.html', charmander=Charmander)
+                elif speech_recognition == 'Yes' and ext1 != "wav":
+                    flash('Speech Recognition requires .wav file')
+                    return render_template('encode.html', charmander=Charmander)
 
                 Audio_Encode(Filepath_Cover_Object, Filepath_Payload, LSB_bits)
                 Stego_Audio = output_filename(File_Cover_Object, "Encode")
