@@ -80,7 +80,7 @@
     {% if Stegoed_Video %}    
     <div class="d-flex justify-content-center">
       <video controls="controls" preload="preload" width="auto" height="240">
-        <source src="{{ url_for('display', filename=Stegoed_Video) }}" type="video/mp4"></source>
+        <source src="{{ url_for('display_video', filename=Stegoed_Video) }}" type="video/mp4"></source>
       </video>
     </div>
     <p class="text-center" style="margin-top: 2vh;">{{ Hash2 }}</p>    
@@ -93,8 +93,7 @@
         <source src="{{ url_for('display', filename=Stegoed_Audio) }}" type="audio/mpeg"></source>
       </audio>
     </div>
-    <p class="text-center" style="margin-top: 2vh;">{{ Hash2 }}</p>    
-    <div style="min-height: 23vh;"></div>
+    <p class="text-center" style="margin-top: 2vh;">{{ Hash2 }}</p>
     {% endif %}
     
     {% if Stegoed_Document %}    

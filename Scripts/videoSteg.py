@@ -5,6 +5,7 @@ import cv2
 import os
 import re
 
+
 class LSB:
     # to get object's format, size, data
     def get_object_info(self, file, itype):
@@ -26,7 +27,7 @@ class LSB:
         return data
 
     def write_file(self, file_format, name, text):
-        with open('Scripts\static\decode_output\\' + name + '_secret' + file_format, 'wb') as f:
+        with open('static\decode_output\\' + name + '_secret' + file_format, 'wb') as f:
             f.write(text)
 
     # ========================================== COVER OBJECT : VIDEO ==========================================
@@ -88,15 +89,17 @@ class LSB:
         files = glob.glob('output/frames/*')
         return files
 
+
 class Video_Encode(LSB):
     def __init__(self, cover, secret, bits, frame_no):
         print('[*] Encoding... ')
+
         self.fps = self.get_cover_video(cover, 'cover')
         self.image = self.get_video_image("output/frames/%d.png" % frame_no, 'image')
         cover_info = self.get_object_info(cover, 'cover')
         cover_size = cover_info[0]
-        self.outfile = 'Scripts\static\encode_output\\' + cover_info[2] + "_copy.avi"
-        self.display_outfile = 'Scripts\static\encode_output\\' + cover_info[2] + "_display" + cover_info[1]
+        self.outfile = 'static\encode_output\\' + cover_info[2] + "_copy.avi"
+        self.display_outfile = 'static\encode_output\\' + cover_info[2] + "_display" + cover_info[1]
 
         self.secret = self.get_secret_object(secret, 'secret')
         secret_info = self.get_object_info(secret, 'secret')
@@ -107,6 +110,15 @@ class Video_Encode(LSB):
 
         bit_pos = bits
         self.encode_to_image(secret_size, secret_info, cover_size, bit_pos, frame_no)
+
+        # check if frame directory is empty
+        files = glob.glob('output/frames/*')
+        if len(files) == 0:
+            print("empty, carry on")
+        else:
+            print("not empty, deleting all files")
+            for f in files:
+                os.remove(f)
 
     def __len__(self):
         return len(self.length)
@@ -122,7 +134,7 @@ class Video_Encode(LSB):
 
         criteria = '#####'.encode('utf8')  # add stopping criteria
         result = encoded_string + criteria + \
-            encoded_file_format + criteria + encoded_name + criteria
+                 encoded_file_format + criteria + encoded_name + criteria
         result = ''.join(self.to_binary(result))
         return result
 
@@ -167,42 +179,48 @@ class Video_Encode(LSB):
                         data_index += 1
                     else:
                         break
-        
-        self.save_video_image(self.image, "output/frames/%d.png" % frame_no) #overwrite frame with encoded frame
-        
+
+        self.save_video_image(self.image, "output/frames/%d.png" % frame_no)  # overwrite frame with encoded frame
+
         # stiches frames to video
         img_array = []
 
-        for filename in sorted(glob.glob("output/frames/*.png"), key = self.numerical_sort):
+        for filename in sorted(glob.glob("output/frames/*.png"), key=self.numerical_sort):
             img = cv2.imread(filename)
             height, width, layers = img.shape
             size = (width, height)
             img_array.append(img)
-        
-        
+
         out = cv2.VideoWriter(self.outfile, cv2.VideoWriter_fourcc(*'RGBA'), self.fps, size)
-        display = cv2.VideoWriter(self.display_outfile, cv2.VideoWriter_fourcc(*'MP4V'), self.fps, size)
-        
+        display = cv2.VideoWriter(self.display_outfile, cv2.VideoWriter_fourcc(*'mp4v'), self.fps, size)
+
         for i in range(len(img_array)):
             out.write(img_array[i])
             display.write(img_array[i])
         out.release()
         display.release()
 
+
 class Video_Decode(LSB):
     def __init__(self, steg, bits, frame_no):
         print('[*] Decoding... ')
-        steg_info = self.get_object_info(steg, 'info')
-        steg_name = steg_info[2].replace('_display', '_copy')
-        for steg_name in os.listdir('Scripts\static\encode_output'):    # change directory as needed
-            if os.path.isfile(steg_name):    # make sure it's a file, not a directory entry
-                with open(steg_name) as f:   # open file
-                    steg = f
 
-        self.fps = self.get_cover_video(steg, 'cover')
+        steg_info = self.get_object_info(steg, 'info')
+        steg_name = 'static\encode_output\\' + steg_info[2].replace('_display', '_copy') + '.avi'
+
+        self.fps = self.get_cover_video(steg_name, 'cover')
         self.steg = self.get_video_image("output/frames/%d.png" % frame_no, 'steg')
         bit_pos = bits
         self.file_format = self.decode_from_image(bit_pos)
+
+        # check if frame directory is empty
+        files = glob.glob('output/frames/*')
+        if len(files) == 0:
+            print("empty, carry on")
+        else:
+            print("not empty, deleting all files")
+            for f in files:
+                os.remove(f)
 
     def __str__(self):
         return str(self.file_format)
@@ -229,7 +247,7 @@ class Video_Decode(LSB):
                     binary_data += b[bit_pos[i]]
 
         # split by 8 bits
-        extracted_bin = [binary_data[i: i+8]
+        extracted_bin = [binary_data[i: i + 8]
                          for i in range(0, len(binary_data), 8)]
 
         message = self.from_base64(extracted_bin)[0]
@@ -239,6 +257,7 @@ class Video_Decode(LSB):
 
         return name + file_format
 
+
 def main():
     payload = input("Enter payload file: ")
     input_videoname = input("Enter in video name for encoding: ")
@@ -246,7 +265,7 @@ def main():
     bits = int(input("Bits to replace? "))
     bit_pos = []
     for i in range(bits):
-        bitPosInput = int(input("Enter bit position #" + str(i+1) + " to replace (0 - 7) : "))
+        bitPosInput = int(input("Enter bit position #" + str(i + 1) + " to replace (0 - 7) : "))
         bit_pos.append(bitPosInput)
     bit_pos.sort()
 

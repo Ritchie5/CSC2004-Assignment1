@@ -185,7 +185,7 @@ class Decode(LSB):
 
 def main():
     #check if frame directory is empty
-    files = glob.glob('output/frames/*')
+    files = glob.glob('Scripts/output/frames/*')
     print(len(files))
     if len(files)==0:
         print("empty, carry on")
@@ -218,7 +218,7 @@ def main():
         bit_pos.append(bitPosInput)
     bit_pos.sort()
 
-    files = glob.glob('output/frames/*') #update value
+    files = glob.glob('Scripts/output/frames/*') #update value
     print(len(files))
     frame_no=int(input("Frame #: "))
     print(frame_no)
@@ -237,7 +237,7 @@ def main():
         parts[1::2] = map(int, parts[1::2])
         return parts
 
-    for filename in sorted(glob.glob("output/frames/*.png"), key=numericalSort):
+    for filename in sorted(glob.glob("Scripts/output/frames/*.png"), key=numericalSort):
         img = cv2.imread(filename)
         height, width, layers = img.shape
         size = (width, height)
@@ -275,7 +275,7 @@ def main():
     Decode(steg_image, bit_pos)
 
     #remove all frames saved once done decoding
-    files = glob.glob('output/frames/*')
+    files = glob.glob('Scripts/output/frames/*')
     for f in files:
         os.remove(f)
 
