@@ -191,7 +191,7 @@ class Video_Encode(LSB):
         
         
         out = cv2.VideoWriter(self.outfile, cv2.VideoWriter_fourcc(*'RGBA'), self.fps, size)
-        display = cv2.VideoWriter(self.display_outfile, cv2.VideoWriter_fourcc(*'MP4V'), self.fps, size)
+        display = cv2.VideoWriter(self.display_outfile, cv2.VideoWriter_fourcc(*'mp4v'), self.fps, size)
         
         for i in range(len(img_array)):
             out.write(img_array[i])
