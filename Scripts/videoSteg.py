@@ -94,6 +94,18 @@ class Video_Encode(LSB):
     def __init__(self, cover, secret, bits, frame_no):
         print('[*] Encoding... ')
 
+<<<<<<< HEAD
+=======
+        # check if frame directory is empty
+        files = glob.glob('output/frames/*')
+        if len(files) == 0:
+            print("empty, carry on")
+        else:
+            print("not empty, deleting all files")
+            for f in files:
+                os.remove(f)
+
+>>>>>>> fae10efb9505cd451862415b0eedc84fa702c9ad
         self.fps = self.get_cover_video(cover, 'cover')
         self.image = self.get_video_image("output/frames/%d.png" % frame_no, 'image')
         cover_info = self.get_object_info(cover, 'cover')
@@ -193,7 +205,11 @@ class Video_Encode(LSB):
 
         out = cv2.VideoWriter(self.outfile, cv2.VideoWriter_fourcc(*'RGBA'), self.fps, size)
         display = cv2.VideoWriter(self.display_outfile, cv2.VideoWriter_fourcc(*'mp4v'), self.fps, size)
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> fae10efb9505cd451862415b0eedc84fa702c9ad
         for i in range(len(img_array)):
             out.write(img_array[i])
             display.write(img_array[i])
@@ -204,10 +220,26 @@ class Video_Encode(LSB):
 class Video_Decode(LSB):
     def __init__(self, steg, bits, frame_no):
         print('[*] Decoding... ')
+<<<<<<< HEAD
 
         steg_info = self.get_object_info(steg, 'info')
         steg_name = 'static\encode_output\\' + steg_info[2].replace('_display', '_copy') + '.avi'
 
+=======
+
+        # check if frame directory is empty
+        files = glob.glob('output/frames/*')
+        if len(files) == 0:
+            print("empty, carry on")
+        else:
+            print("not empty, deleting all files")
+            for f in files:
+                os.remove(f)
+
+        steg_info = self.get_object_info(steg, 'info')
+        steg_name = 'static\encode_output\\' + steg_info[2].replace('_display', '_copy') + '.avi'
+        
+>>>>>>> fae10efb9505cd451862415b0eedc84fa702c9ad
         self.fps = self.get_cover_video(steg_name, 'cover')
         self.steg = self.get_video_image("output/frames/%d.png" % frame_no, 'steg')
         bit_pos = bits
