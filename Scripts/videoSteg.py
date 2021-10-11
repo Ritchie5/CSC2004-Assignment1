@@ -238,11 +238,11 @@ def main():
 
     frame_no = int(input("Frame #: "))
 
-    Encode(input_videoname, payload, bit_pos, frame_no)
+    Video_Encode(input_videoname, payload, bit_pos, frame_no)
 
     output_videoname = input("Enter in video name for decoding: ")
 
-    Decode(output_videoname, bit_pos, frame_no)
+    Video_Decode(output_videoname, bit_pos, frame_no)
 
 
 if __name__ == '__main__':
