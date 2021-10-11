@@ -96,6 +96,7 @@ class Video_Encode(LSB):
         cover_info = self.get_object_info(cover, 'cover')
         cover_size = cover_info[0]
         self.outfile = 'static\encode_output\\' + cover_info[2] + "_copy" + cover_info[1]
+        self.display_outfile = 'static\encode_output\\' + cover_info[2] + "_display" + cover_info[1]
 
         self.secret = self.get_secret_object(secret, 'secret')
         secret_info = self.get_object_info(secret, 'secret')
@@ -180,10 +181,13 @@ class Video_Encode(LSB):
         
         
         out = cv2.VideoWriter(self.outfile, cv2.VideoWriter_fourcc(*'RGBA'), self.fps, size)
+        display = cv2.VideoWriter(self.outfile, cv2.VideoWriter_fourcc(*'MP4V'), self.fps, size)
         
         for i in range(len(img_array)):
             out.write(img_array[i])
+            display.write(img_array[i])
         out.release()
+        display.release()
 
 class Video_Decode(LSB):
     def __init__(self, steg, bits, frame_no):
