@@ -91,12 +91,22 @@ class LSB:
 class Video_Encode(LSB):
     def __init__(self, cover, secret, bits, frame_no):
         print('[*] Encoding... ')
+
+        # check if frame directory is empty
+        files = glob.glob('output/frames/*')
+        if len(files) == 0:
+            print("empty, carry on")
+        else:
+            print("not empty, deleting all files")
+            for f in files:
+                os.remove(f)
+
         self.fps = self.get_cover_video(cover, 'cover')
         self.image = self.get_video_image("output/frames/%d.png" % frame_no, 'image')
         cover_info = self.get_object_info(cover, 'cover')
         cover_size = cover_info[0]
-        self.outfile = 'Scripts\static\encode_output\\' + cover_info[2] + "_copy.avi"
-        self.display_outfile = 'Scripts\static\encode_output\\' + cover_info[2] + "_display" + cover_info[1]
+        self.outfile = 'static\encode_output\\' + cover_info[2] + "_copy.avi"
+        self.display_outfile = 'static\encode_output\\' + cover_info[2] + "_display" + cover_info[1]
 
         self.secret = self.get_secret_object(secret, 'secret')
         secret_info = self.get_object_info(secret, 'secret')
