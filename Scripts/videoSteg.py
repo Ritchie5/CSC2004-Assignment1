@@ -26,7 +26,7 @@ class LSB:
         return data
 
     def write_file(self, file_format, name, text):
-        with open('Scripts\\static\decode_output\\' + name + '_secret' + file_format, 'wb') as f:
+        with open('static\decode_output\\' + name + '_secret' + file_format, 'wb') as f:
             f.write(text)
 
     # ========================================== COVER OBJECT : VIDEO ==========================================
@@ -84,14 +84,14 @@ class LSB:
         parts[1::2] = map(int, parts[1::2])
         return parts
 
-class Encode(LSB):
+class Video_Encode(LSB):
     def __init__(self, cover, secret, bits, frame_no):
         print('[*] Encoding... ')
         self.fps = self.get_cover_video(cover, 'cover')
         self.image = self.get_video_image("output/frames/%d.png" % frame_no, 'image')
         cover_info = self.get_object_info(cover, 'cover')
         cover_size = cover_info[0]
-        self.outfile = 'Scripts\\static\encode_output\\' + cover_info[2] + "_copy" + cover_info[1]
+        self.outfile = 'static\encode_output\\' + cover_info[2] + "_copy" + cover_info[1]
 
         self.secret = self.get_secret_object(secret, 'secret')
         secret_info = self.get_object_info(secret, 'secret')
@@ -171,7 +171,7 @@ class Encode(LSB):
             out.write(img_array[i])
         out.release()
 
-class Decode(LSB):
+class Video_Decode(LSB):
     def __init__(self, steg, bits, frame_no):
         print('[*] Decoding... ')
         self.fps = self.get_cover_video(steg, 'cover')
