@@ -84,6 +84,10 @@ class LSB:
         parts[1::2] = map(int, parts[1::2])
         return parts
 
+    def file_directory(self):
+        files = glob.glob('output/frames/*')
+        return files
+
 class Video_Encode(LSB):
     def __init__(self, cover, secret, bits, frame_no):
         print('[*] Encoding... ')
@@ -97,8 +101,17 @@ class Video_Encode(LSB):
         secret_info = self.get_object_info(secret, 'secret')
         secret_size = secret_info[0]
 
+        self.length = self.file_directory()
+        self.frame_size = secret_size
+
         bit_pos = bits
         self.encode_to_image(secret_size, secret_info, cover_size, bit_pos, frame_no)
+
+    def __len__(self):
+        return len(self.length)
+
+    def __int__(self):
+        return self.frame_size
 
     # b64 -> binary
     def to_base64(self, secret_info):
@@ -165,8 +178,9 @@ class Video_Encode(LSB):
             size = (width, height)
             img_array.append(img)
         
+        
         out = cv2.VideoWriter(self.outfile, cv2.VideoWriter_fourcc(*'RGBA'), self.fps, size)
-
+        
         for i in range(len(img_array)):
             out.write(img_array[i])
         out.release()
@@ -214,18 +228,7 @@ class Video_Decode(LSB):
 
         return name + file_format
 
-
 def main():
-    #check if frame directory is empty
-    files = glob.glob('output/frames/*')
-    print(len(files))
-    if len(files)==0:
-        print("empty, carry on")
-    else:
-        print("not empty, deleting all files")
-        for f in files:
-            os.remove(f)
-
     payload = input("Enter payload file: ")
     input_videoname = input("Enter in video name for encoding: ")
 
@@ -238,7 +241,10 @@ def main():
 
     frame_no = int(input("Frame #: "))
 
-    Video_Encode(input_videoname, payload, bit_pos, frame_no)
+    video = Video_Encode(input_videoname, payload, bit_pos, frame_no)
+
+    print(video.__len__())
+    print(video.__int__())
 
     output_videoname = input("Enter in video name for decoding: ")
 
