@@ -202,6 +202,16 @@ class Video_Encode(LSB):
 class Video_Decode(LSB):
     def __init__(self, steg, bits, frame_no):
         print('[*] Decoding... ')
+
+        # check if frame directory is empty
+        files = glob.glob('output/frames/*')
+        if len(files) == 0:
+            print("empty, carry on")
+        else:
+            print("not empty, deleting all files")
+            for f in files:
+                os.remove(f)
+
         steg_info = self.get_object_info(steg, 'info')
         steg_name = 'static\encode_output\\' + steg_info[2].replace('_display', '_copy') + '.avi'
         
