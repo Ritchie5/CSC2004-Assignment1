@@ -92,7 +92,7 @@ class Encode(LSB):
         result = ''.join(self.to_binary(result))
         return result
 
-    def encode_to_image(self, secret_size, secret_info, cover_size, bit_pos):
+    def encode_to_image(self, secret_size, secret_info, cover_size, bit_pos, frameNo):
         data_index = 0
 
         print("[*] Maximum bytes to encode: ", cover_size)
@@ -134,7 +134,8 @@ class Encode(LSB):
                     else:
                         break
         #self.save_cover_image(self.cover, self.outfile)
-        self.save_cover_image(self.cover, "D:/GitHub/CSC2004-Assignment1/output/frames/1.png") #overwrite frame 1 with encoded frame
+        #self.save_cover_image(self.cover, "output/frames/1.png") #overwrite frame with encoded frame, currently hardcoded to frame 1
+        self.save_cover_image(self.cover, "output/frames/%d.png" % frameNo) #overwrite frame with encoded frame
 
 
 class Decode(LSB):
@@ -184,10 +185,18 @@ class Decode(LSB):
 
 
 def main():
+    #check if frame directory is empty
+    files = glob.glob('output/frames/*')
+    print(len(files))
+    if len(files)==0:
+        print("empty, carry on")
+    else:
+        print("not empty, deleting all files")
+        for f in files:
+            os.remove(f)
+
     # ========================================ENCODE================================================
     payload = input("Enter payload file: ")
-    # hardcoded to frame 0
-    cover_image = ("output/frames/1.png") #hardcoded frame 1
     # inputvideoname="D:/GitHub/CSC2004-Assignment1/Video/10.mp4"
     # inputvideoname="D:/GitHub/CSC2004-Assignment1/Video/file_example_AVI_480_750kB.avi" #hardcode encode video input
     inputvideoname = input("Enter in video name for encoding: ")
@@ -199,20 +208,26 @@ def main():
     count = 1
     # splice video to frames
     while success:
-        cv2.imwrite(
-            "output/frames/%d.png" % count, image)
+        cv2.imwrite("output/frames/%d.png" % count, image)
         success, image = vidcap.read()
         count += 1
 
     bits = int(input("Bits to replace? "))
     bit_pos = []
     for i in range(bits):
-        bitPosInput = int(input("Enter bit position #" +
-                          str(i+1) + " to replace (0 - 7) : "))
+        bitPosInput = int(input("Enter bit position #" + str(i+1) + " to replace (0 - 7) : "))
         bit_pos.append(bitPosInput)
     bit_pos.sort()
 
-    Encode(cover_image, payload, bit_pos)
+    files = glob.glob('output/frames/*') #update value
+    print(len(files))
+    frameNo=int(input("Frame #: "))
+    print(frameNo)
+    cover_image=("output/frames/%d.png" % frameNo)
+    #cover_image = ("output/frames/1.png") #hardcoded frame 1
+    #print(cover_image)
+
+    Encode(cover_image, payload, bit_pos, frameNo)
 
     # stiches frames to video
     img_array = []
@@ -229,15 +244,13 @@ def main():
         size = (width, height)
         img_array.append(img)
 
-    out = cv2.VideoWriter(
-        'TEST.avi', cv2.VideoWriter_fourcc(*'RGBA'), fps, size)
+    out = cv2.VideoWriter('TEST.avi', cv2.VideoWriter_fourcc(*'RGBA'), fps, size)
 
     for i in range(len(img_array)):
         out.write(img_array[i])
     out.release()
 
     #remove all frames saved once done encoding
-    files = glob.glob('output/frames/*')
     for f in files:
         os.remove(f)
 
@@ -250,15 +263,15 @@ def main():
     fps = vidcap.get(cv2.CAP_PROP_FPS)
     print(fps)
     success, image = vidcap.read()
-    count = 0
+    count = 1
     # splice video to frames
     while success:
-        cv2.imwrite(
-            "D:/GitHub/CSC2004-Assignment1/output/frames/%d.png" % count, image)
+        cv2.imwrite("output/frames/%d.png" % count, image)
         success, image = vidcap.read()
         count += 1
     #steg_image ="D:/GitHub/CSC2004-Assignment1/Scripts/static/encode_output/0_copy.png"
-    steg_image = "output/frames/1.png"  # hardcoded frame 1
+    #steg_image = "output/frames/1.png"  # hardcoded frame 1
+    steg_image=("output/frames/%d.png" % frameNo) #user choose which frame to hide data
 
     Decode(steg_image, bit_pos)
 
