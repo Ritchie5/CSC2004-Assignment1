@@ -26,7 +26,7 @@ class LSB:
         return data
 
     def write_file(self, file_format, name, text):
-        with open('Scripts\static\decode_output\\' + name + '_secret' + file_format, 'wb') as f:
+        with open('static\decode_output\\' + name + '_secret' + file_format, 'wb') as f:
             f.write(text)
 
     # ========================================== COVER OBJECT : VIDEO ==========================================
@@ -203,13 +203,9 @@ class Video_Decode(LSB):
     def __init__(self, steg, bits, frame_no):
         print('[*] Decoding... ')
         steg_info = self.get_object_info(steg, 'info')
-        steg_name = steg_info[2].replace('_display', '_copy')
-        for steg_name in os.listdir('Scripts\static\encode_output'):    # change directory as needed
-            if os.path.isfile(steg_name):    # make sure it's a file, not a directory entry
-                with open(steg_name) as f:   # open file
-                    steg = f
-
-        self.fps = self.get_cover_video(steg, 'cover')
+        steg_name = 'static\encode_output\\' + steg_info[2].replace('_display', '_copy') + '.avi'
+        
+        self.fps = self.get_cover_video(steg_name, 'cover')
         self.steg = self.get_video_image("output/frames/%d.png" % frame_no, 'steg')
         bit_pos = bits
         self.file_format = self.decode_from_image(bit_pos)
