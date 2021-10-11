@@ -26,7 +26,7 @@ class LSB:
         return data
 
     def write_file(self, file_format, name, text):
-        with open('static\decode_output\\' + name + '_secret' + file_format, 'wb') as f:
+        with open('Scripts\static\decode_output\\' + name + '_secret' + file_format, 'wb') as f:
             f.write(text)
 
     # ========================================== COVER OBJECT : VIDEO ==========================================
@@ -95,8 +95,8 @@ class Video_Encode(LSB):
         self.image = self.get_video_image("output/frames/%d.png" % frame_no, 'image')
         cover_info = self.get_object_info(cover, 'cover')
         cover_size = cover_info[0]
-        self.outfile = 'static\encode_output\\' + cover_info[2] + "_copy" + cover_info[1]
-        self.display_outfile = 'static\encode_output\\' + cover_info[2] + "_display" + cover_info[1]
+        self.outfile = 'Scripts\static\encode_output\\' + cover_info[2] + "_copy.avi"
+        self.display_outfile = 'Scripts\static\encode_output\\' + cover_info[2] + "_display" + cover_info[1]
 
         self.secret = self.get_secret_object(secret, 'secret')
         secret_info = self.get_object_info(secret, 'secret')
@@ -181,7 +181,7 @@ class Video_Encode(LSB):
         
         
         out = cv2.VideoWriter(self.outfile, cv2.VideoWriter_fourcc(*'RGBA'), self.fps, size)
-        display = cv2.VideoWriter(self.outfile, cv2.VideoWriter_fourcc(*'MP4V'), self.fps, size)
+        display = cv2.VideoWriter(self.display_outfile, cv2.VideoWriter_fourcc(*'MP4V'), self.fps, size)
         
         for i in range(len(img_array)):
             out.write(img_array[i])
@@ -192,6 +192,13 @@ class Video_Encode(LSB):
 class Video_Decode(LSB):
     def __init__(self, steg, bits, frame_no):
         print('[*] Decoding... ')
+        steg_info = self.get_object_info(steg, 'info')
+        steg_name = steg_info[2].replace('_display', '_copy')
+        for steg_name in os.listdir('Scripts\static\encode_output'):    # change directory as needed
+            if os.path.isfile(steg_name):    # make sure it's a file, not a directory entry
+                with open(steg_name) as f:   # open file
+                    steg = f
+
         self.fps = self.get_cover_video(steg, 'cover')
         self.steg = self.get_video_image("output/frames/%d.png" % frame_no, 'steg')
         bit_pos = bits
