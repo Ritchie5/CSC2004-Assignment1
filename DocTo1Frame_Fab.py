@@ -65,7 +65,7 @@ class LSB:
 
 
 class Encode(LSB):
-    def __init__(self, cover, secret, bits):
+    def __init__(self, cover, secret, bits, frame_no):
         print('[*] Encoding... ')
         self.cover = self.get_cover_image(cover, 'cover')
         cover_info = self.get_object_info(cover, 'cover')
@@ -78,7 +78,7 @@ class Encode(LSB):
         secret_size = secret_info[0]
 
         bit_pos = bits
-        self.encode_to_image(secret_size, secret_info, cover_size, bit_pos)
+        self.encode_to_image(secret_size, secret_info, cover_size, bit_pos, frame_no)
 
     # b64 -> binary
     def to_base64(self, secret_info):
@@ -92,7 +92,7 @@ class Encode(LSB):
         result = ''.join(self.to_binary(result))
         return result
 
-    def encode_to_image(self, secret_size, secret_info, cover_size, bit_pos, frameNo):
+    def encode_to_image(self, secret_size, secret_info, cover_size, bit_pos, frame_no):
         data_index = 0
 
         print("[*] Maximum bytes to encode: ", cover_size)
@@ -135,15 +135,15 @@ class Encode(LSB):
                         break
         #self.save_cover_image(self.cover, self.outfile)
         #self.save_cover_image(self.cover, "output/frames/1.png") #overwrite frame with encoded frame, currently hardcoded to frame 1
-        self.save_cover_image(self.cover, "output/frames/%d.png" % frameNo) #overwrite frame with encoded frame
+        self.save_cover_image(self.cover, "output/frames/%d.png" % frame_no) #overwrite frame with encoded frame
 
 
 class Decode(LSB):
-    def __init__(self, steg, bits):
+    def __init__(self, steg, bits, frame_no):
         print('[*] Decoding... ')
         self.steg = self.get_cover_image(steg, 'steg')
         bit_pos = bits
-        self.file_format = self.decode_from_image(bit_pos)
+        self.file_format = self.decode_from_image(bit_pos, frame_no)
 
     def __str__(self):
         return str(self.file_format)
@@ -157,7 +157,7 @@ class Decode(LSB):
         name = base64.b64decode(result[2])
         return message, file_format, name
 
-    def decode_from_image(self, bit_pos):
+    def decode_from_image(self, bit_pos, frame_no):
         binary_data = ""
         for row in self.steg:
             for pixel in row:
@@ -221,13 +221,13 @@ def main():
 
     files = glob.glob('output/frames/*') #update value
     print(len(files))
-    frameNo=int(input("Frame #: "))
-    print(frameNo)
-    cover_image=("output/frames/%d.png" % frameNo)
+    frame_no=int(input("Frame #: "))
+    print(frame_no)
+    cover_image=("output/frames/%d.png" % frame_no)
     #cover_image = ("output/frames/1.png") #hardcoded frame 1
     #print(cover_image)
 
-    Encode(cover_image, payload, bit_pos, frameNo)
+    Encode(cover_image, payload, bit_pos, frame_no)
 
     # stiches frames to video
     img_array = []
@@ -271,7 +271,7 @@ def main():
         count += 1
     #steg_image ="D:/GitHub/CSC2004-Assignment1/Scripts/static/encode_output/0_copy.png"
     #steg_image = "output/frames/1.png"  # hardcoded frame 1
-    steg_image=("output/frames/%d.png" % frameNo) #user choose which frame to hide data
+    steg_image=("output/frames/%d.png" % frame_no) #user choose which frame to hide data
 
     Decode(steg_image, bit_pos)
 

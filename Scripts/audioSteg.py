@@ -83,12 +83,10 @@ class Audio_Encode(LSB):
         self.encode_to_audio(secret_size, secret_info, cover_size, ori_cover_obj, bit_pos)
 
     # b64 -> binary
-    #def to_base64(self, secret_info, bit_pos):
     def to_base64(self, secret_info):
         encoded_string = base64.b64encode(self.secret)
         encoded_file_format = base64.b64encode(secret_info[1].encode('utf-8'))
         encoded_name = base64.b64encode(secret_info[2].encode('utf-8'))
-        #encoded_bits = base64.b64encode(bit_pos.encode('utf-8'))
 
         criteria = '#####'.encode('utf8')  # add stopping criteria
         result = encoded_string + criteria + encoded_file_format + criteria + encoded_name + criteria
